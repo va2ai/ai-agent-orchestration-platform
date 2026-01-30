@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //F //PID 19080)",
+      "Bash(python run_api.py:*)",
+      "Bash(taskkill:*)",
+      "Bash(python -c:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(netstat:*)",
+      "Bash(xargs:*)",
+      "Bash(Get-Content \"C:\\\\Users\\\\ccdmn\\\\code\\\\round\\\\api_server.log\" -Tail 50)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(start /B python run_api.py)",
+      "Bash(cmd.exe //c \"taskkill //F //PID 36912\")",
+      "Bash(Select-String -Pattern \"console.log\")",
+      "Bash(Select-Object -First 20)"
+    ]
+  }
+}

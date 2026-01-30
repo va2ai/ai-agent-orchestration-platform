@@ -1,0 +1,452 @@
+/* Custom styles for Roundtable UI */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* slate-300 */
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* slate-400 */
+}
+
+/* Typography Enhancements for Markdown Content */
+.prose {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.prose h1 {
+    font-size: 2em;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.prose h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+}
+
+.prose h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #475569;
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+}
+
+.prose p {
+    margin-bottom: 1em;
+    color: #475569;
+}
+
+.prose ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+.prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+.prose li {
+    margin-bottom: 0.4em;
+}
+
+.prose code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    background-color: #f1f5f9;
+    padding: 0.2em 0.4em;
+    border-radius: 0.25em;
+    color: #0f172a;
+}
+
+.prose pre {
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 1em;
+    border-radius: 0.5em;
+    overflow-x: auto;
+    margin-bottom: 1.5em;
+}
+
+.prose pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.prose blockquote {
+    border-left: 4px solid #e2e8f0;
+    padding-left: 1em;
+    font-style: italic;
+    color: #64748b;
+    margin-bottom: 1.5em;
+}
+
+/* Chat/Activity Log Styles */
+.activity-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.activity-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    max-width: 90%;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.activity-meta {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+/* Variants */
+.bubble-info {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+}
+
+/* Dark mode bubbles */
+.dark .bubble-info {
+    background-color: #1e293b; /* slate-800 */
+    border-color: #334155; /* slate-700 */
+    color: #e2e8f0; /* slate-200 */
+}
+
+.bubble-success {
+    background-color: #f0fdf4; /* green-50 */
+    border: 1px solid #bbf7d0; /* green-200 */
+    color: #166534; /* green-800 */
+    align-self: center; /* Center these messages */
+    text-align: center;
+    max-width: 100%;
+    border-radius: 0.5rem;
+}
+
+.dark .bubble-success {
+    background-color: #14532d; /* green-900 */
+    border-color: #15803d; /* green-700 */
+    color: #dcfce7; /* green-100 */
+}
+
+.bubble-warning {
+    background-color: #fffbeb; /* amber-50 */
+    border: 1px solid #fde68a; /* amber-200 */
+    color: #92400e; /* amber-800 */
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+}
+
+.dark .bubble-warning {
+    background-color: #451a03; /* amber-950/brown */
+    border-color: #92400e; /* amber-800 */
+    color: #fef3c7; /* amber-100 */
+}
+
+.bubble-error {
+    background-color: #fef2f2; /* red-50 */
+    border: 1px solid #fecaca; /* red-200 */
+    color: #991b1b; /* red-800 */
+    align-self: center;
+}
+
+.dark .bubble-error {
+    background-color: #7f1d1d; /* red-900 */
+    border-color: #991b1b; /* red-800 */
+    color: #fee2e2; /* red-100 */
+}
+
+.bubble-user {
+    background-color: #f0f9ff; /* sky-50 */
+    border: 1px solid #bae6fd; /* sky-200 */
+    color: #0369a1; /* sky-700 */
+    align-self: flex-end; /* Align user actions right if we had them, or special system events */
+    border-bottom-right-radius: 0;
+}
+
+.dark .bubble-user {
+    background-color: #0c4a6e; /* sky-900 */
+    border-color: #075985; /* sky-800 */
+    color: #e0f2fe; /* sky-100 */
+}
+
+
+/* --- Roundtable Visuals --- */
+
+.participant-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 140px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.participant-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #334155, #1e293b);
+    border: 3px solid #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    z-index: 20;
+    position: relative;
+}
+
+.participant-card.active .participant-avatar {
+    border-color: #38bdf8; /* sky-400 */
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+}
+
+.participant-info {
+    margin-top: 0.75rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.participant-name {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    margin-bottom: 0.1rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.participant-role {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    line-height: 1.1;
+}
+
+/* Status Indicators */
+.status-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #1e293b;
+    z-index: 25;
+}
+
+.status-idle { background-color: #94a3b8; }
+.status-thinking { 
+    background-color: #fbbf24; /* amber-400 */
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    animation: pulse-amber 1.5s infinite;
+}
+.status-done { 
+    background-color: #4ade80; /* green-400 */
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+@keyframes pulse-amber {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Thought Bubbles */
+.thought-bubble {
+    position: absolute;
+    bottom: 100%; /* Position above avatar */
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: white;
+    color: #334155;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    border-bottom-left-radius: 2px;
+    font-size: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: max-content;
+    max-width: 200px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 30;
+}
+
+.participant-card.active .thought-bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-15px);
+}
+
+/* Moderator Special Styles */
+#moderator-seat .participant-avatar {
+    width: 72px;
+    height: 72px;
+    border-color: #a855f7; /* purple-500 */
+    background: linear-gradient(135deg, #7e22ce, #581c87);
+}
+
+#moderator-seat.active .participant-avatar {
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #d8b4fe, #a855f7);
+}
+
+#moderator-seat .participant-name {
+    color: #e9d5ff; /* purple-100 */
+}
+
+/* 3D Perspective for Arc */
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+/* --- Print Styles --- */
+@media print {
+    /* Hide everything except the content we want to print */
+    aside, 
+    #setupView, 
+    #monitorView, 
+    #statusCard,
+    .mb-6.flex.justify-between.items-end, /* Results header buttons */
+    #detailsModal,
+    .bg-gray-50.border-b, /* Final document header */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Reset layout for print */
+    body, main, #resultsCard {
+        display: block !important;
+        background: white !important;
+        color: black !important;
+        overflow: visible !important;
+        height: auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #resultsCard {
+        max-width: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    #prdContent {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .bg-white {
+        background: white !important;
+    }
+
+    /* Typography for print */
+    .prose {
+        font-size: 11pt !important;
+        line-height: 1.5 !important;
+        color: black !important;
+        max-width: none !important;
+    }
+
+    .prose h1 {
+        font-size: 24pt !important;
+        margin-top: 0 !important;
+        border-bottom: 2pt solid #eee !important;
+    }
+
+    .prose h2 {
+        font-size: 18pt !important;
+        margin-top: 1.5cm !important;
+        page-break-after: avoid;
+    }
+
+    .prose h3 {
+        font-size: 14pt !important;
+        page-break-after: avoid;
+    }
+
+    .prose p, .prose li {
+        orphans: 3;
+        widows: 3;
+    }
+
+    .prose blockquote {
+        border-left: 3pt solid #ddd !important;
+        background: #f9f9f9 !important;
+        page-break-inside: avoid;
+    }
+
+    .prose pre {
+        background: #f4f4f4 !important;
+        color: black !important;
+        border: 1pt solid #ddd !important;
+        page-break-inside: avoid;
+        white-space: pre-wrap !important;
+    }
+
+    .prose code {
+        background: #eee !important;
+        color: black !important;
+    }
+
+    /* Add a "Printed from" footer */
+    body::after {
+        content: "Generated by AI Roundtable Refinement on " attr(data-date);
+        display: block;
+        text-align: center;
+        font-size: 8pt;
+        color: #999;
+        margin-top: 2cm;
+    }
+}

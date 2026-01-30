@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+data/prds/*
+!data/prds/.gitkeep
+.vscode/
+.pytest_cache/
+*.egg-info/
+dist/
+build/

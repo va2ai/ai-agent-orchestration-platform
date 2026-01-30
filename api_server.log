@@ -1,0 +1,375 @@
+INFO:     Started server process [24928]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Starting PRD Refinement API Server...
+Dashboard: http://localhost:8000/
+API Docs: http://localhost:8000/docs
+
+INFO:     127.0.0.1:56121 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56121 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56121 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55445 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56121 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55445 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56121 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 59152) - "WebSocket /ws/refinement/session_20260129_092057" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:54272 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54272 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54272 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60208 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54272 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60208 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60208 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53309 - "POST /api/files/upload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54124 - "POST /api/refinement/start HTTP/1.1" 200 OK
+INFO:     ('127.0.0.1', 60612) - "WebSocket /ws/refinement/session_20260129_220840" [accepted]
+INFO:     connection open
+Generating roundtable participants...
+Goal: improve
+Generated 3 participants:
+  - Dr. Emily Stone: Clinical Psychologist
+  - Tom Brennan: Veterans Affairs Legal Advisor
+  - Linda Choi: Data Scientist
+Saved document v1
+Iteration 1/3
+  Participants reviewing...
+[ERROR] [Linda Choi] Review failed: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+[ERROR] [Linda Choi] Traceback: Traceback (most recent call last):
+  File "C:\Users\ccdmn\code\round\api\services\dynamic_async_orchestrator.py", line 318, in _review_async
+    review, tokens = await loop.run_in_executor(None, critic.review, doc, logger)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Users\ccdmn\code\round\agents\dynamic_critic.py", line 114, in review
+    review = DocumentReview(
+        reviewer_name=self.name,
+        **review_data
+    )
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\site-packages\pydantic\main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+
+[ERROR]   Review gathering failed: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+Refinement failed for session_20260129_220840: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missingTraceback (most recent call last):
+  File "C:\Users\ccdmn\code\round\api\routes\refinement.py", line 75, in run_refinement
+    final_doc, report = await orchestrator.run(
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\ccdmn\code\round\api\services\dynamic_async_orchestrator.py", line 176, in run
+    results = await asyncio.gather(*review_tasks)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ccdmn\code\round\api\services\dynamic_async_orchestrator.py", line 318, in _review_async
+    review, tokens = await loop.run_in_executor(None, critic.review, doc, logger)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Users\ccdmn\code\round\agents\dynamic_critic.py", line 114, in review
+    review = DocumentReview(
+        reviewer_name=self.name,
+        **review_data
+    )
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\site-packages\pydantic\main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ations and treatments.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd... of cases or outcomes.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...robust legal analysis.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...AI-generated findings."}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+
+[ERROR] [Dr. Emily Stone] Review failed: 6 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he time of the report.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he time of the report.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he evidence presented.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he evidence presented.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'section': 'REGULATORY F...re assessed and rated.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'section': 'REGULATORY F...re assessed and rated.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+[ERROR] [Dr. Emily Stone] Traceback: Traceback (most recent call last):
+  File "C:\Users\ccdmn\code\round\api\services\dynamic_async_orchestrator.py", line 318, in _review_async
+    review, tokens = await loop.run_in_executor(None, critic.review, doc, logger)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Users\ccdmn\code\round\agents\dynamic_critic.py", line 114, in review
+    review = DocumentReview(
+        reviewer_name=self.name,
+        **review_data
+    )
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\site-packages\pydantic\main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 6 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he time of the report.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he time of the report.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he evidence presented.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'section': 'MEDICAL RESE...he evidence presented.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'section': 'REGULATORY F...re assessed and rated.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'section': 'REGULATORY F...re assessed and rated.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+
+[ERROR] [Tom Brennan] Review failed: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...psychiatric disorders.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...psychiatric disorders.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ice connection claims.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ice connection claims.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...cupational impairment.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...cupational impairment.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...service documentation.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...service documentation.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+[ERROR] [Tom Brennan] Traceback: Traceback (most recent call last):
+  File "C:\Users\ccdmn\code\round\api\services\dynamic_async_orchestrator.py", line 318, in _review_async
+    review, tokens = await loop.run_in_executor(None, critic.review, doc, logger)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Users\ccdmn\code\round\agents\dynamic_critic.py", line 114, in review
+    review = DocumentReview(
+        reviewer_name=self.name,
+        **review_data
+    )
+  File "C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\site-packages\pydantic\main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 8 validation errors for DocumentReview
+issues.0.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...psychiatric disorders.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.0.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...psychiatric disorders.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.category
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ice connection claims.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.1.reviewer
+  Field required [type=missing, input_value={'severity': 'Medium', 'd...ice connection claims.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...cupational impairment.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.2.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...cupational impairment.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.category
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...service documentation.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+issues.3.reviewer
+  Field required [type=missing, input_value={'severity': 'Low', 'desc...service documentation.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+
+INFO:     127.0.0.1:58433 - "GET / HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:58433 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60888 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58433 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60888 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58433 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60888 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59151 - "GET /docs HTTP/1.1" 200 OK
+C:\Users\ccdmn\.pyenv\pyenv-win\versions\3.13.2\Lib\site-packages\fastapi\openapi\utils.py:225: UserWarning: Duplicate Operation ID upload_file_api_files_upload_post for function upload_file at C:\Users\ccdmn\code\round\api\main.py
+  warnings.warn(message, stacklevel=1)
+INFO:     127.0.0.1:59151 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59151 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59151 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55579 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62460 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59151 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62460 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59151 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:65467 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65467 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58268 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64470 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50769 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62975 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62975 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52434 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52434 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56327 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52434 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56327 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56327 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56327 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54124 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54124 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54124 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54124 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54124 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64988 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64988 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61744 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61744 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61744 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61744 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56867 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56867 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49788 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49788 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49788 - "GET /static/css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53307 - "GET /static/js/websocket.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49788 - "GET /static/js/visualization.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53307 - "GET /static/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53307 - "GET /api/sessions/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53307 - "GET /favicon.ico HTTP/1.1" 404 Not Found
