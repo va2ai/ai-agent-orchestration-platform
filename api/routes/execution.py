@@ -265,6 +265,7 @@ async def run_orchestration_with_trace(
             document_type=document_type,
             goal=goal,
             participant_style=participant_style,
+            session_id=run_id,
         )
 
         # Update execution trace with final results

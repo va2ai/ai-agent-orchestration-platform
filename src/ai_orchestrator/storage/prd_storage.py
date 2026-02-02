@@ -39,6 +39,23 @@ class PRDStorage:
 
         return session_id
 
+    def create_session_with_id(self, session_id: str, title: str) -> str:
+        """Create new PRD session with a specific session ID"""
+        session_dir = self.base_dir / session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+
+        # Update index
+        index_data = json.loads(self.index_file.read_text(encoding='utf-8'))
+        index_data["sessions"].append({
+            "session_id": session_id,
+            "title": title,
+            "created_at": datetime.now().isoformat(),
+            "directory": str(session_dir)
+        })
+        self.index_file.write_text(json.dumps(index_data, indent=2), encoding='utf-8')
+
+        return session_id
+
     def save_prd(self, session_id: str, prd: Union[PRD, Document]):
         """Save PRD/Document version to session directory"""
         session_dir = self.base_dir / session_id

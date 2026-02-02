@@ -37,6 +37,7 @@ class MetaOrchestrator:
     def __init__(self, model: str = "gpt-4-turbo", temperature: float = 0.7):
         self.llm = create_llm(model=model, temperature=temperature)
         self.parser = JsonOutputParser(pydantic_object=RoundtableConfig)
+        self.single_participant_parser = JsonOutputParser(pydantic_object=Participant)
 
     def generate_roundtable(
         self,
@@ -162,6 +163,203 @@ ALL fields are required except suggested_fix which can be null. Use 'reviewer' f
         config = self.parser.parse(response.content)
 
         return RoundtableConfig(**config)
+
+    def generate_single_participant(
+        self,
+        topic: str,
+        content: str,
+        participant_index: int,
+        total_participants: int,
+        existing_participants: List[Participant],
+        goal: str = None,
+        participant_style: str = None
+    ) -> Participant:
+        """
+        Generate a single participant, aware of existing ones for diversity.
+
+        Args:
+            topic: The discussion topic
+            content: The document content
+            participant_index: Index of this participant (0-based)
+            total_participants: Total number of participants to generate
+            existing_participants: List of already generated participants
+            goal: Optional goal for the discussion
+            participant_style: Optional style/tone for participants
+
+        Returns:
+            A single Participant object
+        """
+        existing_desc = ""
+        if existing_participants:
+            existing_list = "\n".join([
+                f"- {p.name}: {p.role} (expertise: {p.expertise})"
+                for p in existing_participants
+            ])
+            existing_desc = f"""
+ALREADY GENERATED PARTICIPANTS (ensure diversity - do NOT duplicate their perspectives):
+{existing_list}
+"""
+
+        system_prompt = """You are a Meta-Orchestrator that designs expert roundtable discussions.
+
+Your job is to generate ONE expert participant who should review and refine a document.
+
+For this participant, you must:
+1. Define their name/role (e.g., "Senior Product Manager", "Security Architect")
+2. Explain what they'll review (e.g., "User value and market fit")
+3. List their expertise areas
+4. Describe their perspective
+5. Write a COMPLETE system prompt for them that includes:
+   - Their role and expertise
+   - What aspects they should focus on
+   - What severity levels mean (High/Medium/Low)
+   - Instructions for providing structured feedback in this EXACT JSON format:
+     {
+       "issues": [
+         {
+           "category": "Issue category",
+           "description": "Detailed description",
+           "severity": "High|Medium|Low",
+           "suggested_fix": "Suggested fix (optional)",
+           "reviewer": "Participant's name"
+         }
+       ],
+       "overall_assessment": "Overall assessment and summary"
+     }
+   - Examples of the kinds of issues they should flag
+
+Output valid JSON matching this schema:
+{
+  "name": "...",
+  "role": "...",
+  "expertise": "...",
+  "perspective": "...",
+  "system_prompt": "..."
+}
+"""
+
+        style_instruction = ""
+        if participant_style:
+            style_instruction = f"CRITICAL STYLE INSTRUCTION: The user wants the participants to be '{participant_style}'. Ensure the system prompt and persona reflect this specific tone and approach."
+
+        human_prompt = f"""Topic: {topic}
+
+{f"Goal: {goal}" if goal else ""}
+
+Content to be refined (first 500 chars):
+{content[:500]}...
+
+Generating participant {participant_index + 1} of {total_participants}.
+{existing_desc}
+{style_instruction}
+
+Generate ONE expert participant with a UNIQUE perspective that complements the existing participants.
+Ensure this participant covers aspects not already covered by existing participants.
+
+The system_prompt MUST end with these EXACT instructions:
+
+"You must respond with a JSON object in this EXACT format:
+{{
+  "issues": [
+    {{
+      "category": "Issue category (e.g., 'Clarity', 'Technical Feasibility', 'Security')",
+      "description": "Detailed description of the issue",
+      "severity": "High|Medium|Low",
+      "suggested_fix": "Suggested fix or improvement (optional)",
+      "reviewer": "Your name"
+    }}
+  ],
+  "overall_assessment": "Overall assessment and summary"
+}}
+
+ALL fields are required except suggested_fix which can be null. Use 'reviewer' field to put your own name."
+"""
+
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=human_prompt)
+        ]
+
+        response = self.llm.invoke(messages)
+        participant_dict = self.single_participant_parser.parse(response.content)
+
+        return Participant(**participant_dict)
+
+    def generate_moderator_config(
+        self,
+        topic: str,
+        content: str,
+        participants: List[Participant],
+        goal: str = None
+    ) -> dict:
+        """
+        Generate moderator focus and convergence criteria based on participants.
+
+        Args:
+            topic: The discussion topic
+            content: The document content
+            participants: List of generated participants
+            goal: Optional goal for the discussion
+
+        Returns:
+            dict with 'moderator_focus' and 'convergence_criteria'
+        """
+        participants_desc = "\n".join([
+            f"- {p.name}: {p.role} (perspective: {p.perspective})"
+            for p in participants
+        ])
+
+        system_prompt = """You are a Meta-Orchestrator designing moderator instructions for a roundtable discussion.
+
+Based on the participants and their perspectives, specify:
+1. What the moderator should focus on when incorporating feedback
+2. What constitutes convergence (when to stop iterating)
+
+Output valid JSON:
+{
+  "moderator_focus": "...",
+  "convergence_criteria": "..."
+}
+"""
+
+        human_prompt = f"""Topic: {topic}
+{f"Goal: {goal}" if goal else ""}
+
+Participants:
+{participants_desc}
+
+Generate moderator instructions that will effectively synthesize feedback from these diverse perspectives.
+"""
+
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=human_prompt)
+        ]
+
+        response = self.llm.invoke(messages)
+
+        # Parse the response - handle potential JSON in response
+        import json
+        content_str = response.content
+
+        # Try to extract JSON from the response
+        try:
+            # First try direct parsing
+            result = json.loads(content_str)
+        except json.JSONDecodeError:
+            # Try to find JSON in the response
+            import re
+            json_match = re.search(r'\{[^{}]*"moderator_focus"[^{}]*\}', content_str, re.DOTALL)
+            if json_match:
+                result = json.loads(json_match.group())
+            else:
+                # Fallback defaults
+                result = {
+                    "moderator_focus": "Synthesize all feedback, prioritizing high severity issues",
+                    "convergence_criteria": "No high severity issues remain"
+                }
+
+        return result
 
     def generate_from_preset(self, preset: str) -> RoundtableConfig:
         """

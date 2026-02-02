@@ -6,7 +6,7 @@ import asyncio
 from typing import Tuple, Dict, Any, Optional, List
 from datetime import datetime
 
-from ai_orchestrator.agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig
+from ai_orchestrator.agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig, Participant
 from ai_orchestrator.agents.dynamic_critic import DynamicCritic, DynamicModerator
 from ai_orchestrator.models.document_models import Document, DocumentReview
 from ai_orchestrator.storage.prd_storage import PRDStorage
@@ -67,7 +67,7 @@ class DynamicAsyncOrchestrator:
         })
 
     def generate_roundtable(self, title: str, initial_content: str, goal: str = None, participant_style: str = None) -> RoundtableConfig:
-        """Generate roundtable participants"""
+        """Generate roundtable participants (synchronous, all at once)"""
         if self.use_preset:
             config = self.meta.generate_from_preset(self.use_preset)
         else:
@@ -78,6 +78,59 @@ class DynamicAsyncOrchestrator:
                 goal=goal,
                 participant_style=participant_style
             )
+
+        self._setup_critics_from_config(config)
+        return config
+
+    def _setup_critics_from_config(self, config: RoundtableConfig):
+        """Setup critics and moderator from a RoundtableConfig"""
+        # Model Selection Logic
+        diverse_models = [
+            "gpt-5.2",
+            "gemini-3-pro-preview",
+            "gpt-5.2-pro",
+            "gemini-3-flash-preview",
+            "claude-3-5-sonnet-20240620",
+            "gpt-5",
+            "gemini-2.5-flash",
+            "gpt-4o",
+            "gemini-1.5-pro",
+            "gpt-4.1"
+        ]
+
+        self.critics = []
+        for i, p in enumerate(config.participants):
+            assigned_model = self.model
+            if self.model_strategy == "diverse":
+                # Assign round-robin from high-quality models
+                assigned_model = diverse_models[i % len(diverse_models)]
+
+            critic = DynamicCritic(
+                name=p.name,
+                role=p.role,
+                system_prompt=p.system_prompt,
+                model=assigned_model
+            )
+            self.critics.append(critic)
+
+        self.moderator = DynamicModerator(
+            moderator_focus=config.moderator_focus,
+            model=self.model
+        )
+
+        self.roundtable_config = config
+
+    async def generate_roundtable_streaming(
+        self,
+        session_id: str,
+        title: str,
+        initial_content: str,
+        goal: str = None,
+        participant_style: str = None
+    ) -> RoundtableConfig:
+        """Generate roundtable participants one by one with streaming updates"""
+        loop = asyncio.get_event_loop()
+        participants: List[Participant] = []
 
         # Model Selection Logic
         diverse_models = [
@@ -92,29 +145,86 @@ class DynamicAsyncOrchestrator:
             "gemini-1.5-pro",
             "gpt-4.1"
         ]
-        
+
         self.critics = []
-        for i, p in enumerate(config.participants):
+
+        # Generate participants one by one
+        for i in range(self.num_participants):
+            # Broadcast that we're generating this participant
+            await self.broadcast_event(session_id, "participant_generating", {
+                "index": i + 1,
+                "total": self.num_participants,
+                "message": f"Generating participant {i + 1} of {self.num_participants}..."
+            })
+
+            # Generate single participant in executor
+            participant = await loop.run_in_executor(
+                None,
+                lambda idx=i: self.meta.generate_single_participant(
+                    topic=title,
+                    content=initial_content,
+                    participant_index=idx,
+                    total_participants=self.num_participants,
+                    existing_participants=participants,
+                    goal=goal,
+                    participant_style=participant_style
+                )
+            )
+            participants.append(participant)
+
+            # Assign model for this critic
             assigned_model = self.model
             if self.model_strategy == "diverse":
-                # Assign round-robin from high-quality models
                 assigned_model = diverse_models[i % len(diverse_models)]
-            
-            # Store the model info in the participant object for UI display
-            # (Note: This monkey-patches the Pydantic model instance if mutable, or we just rely on the critic having it)
-            # Better: We'll modify the critic creation.
-            
+
+            # Create critic for this participant
             critic = DynamicCritic(
-                name=p.name,
-                role=p.role,
-                system_prompt=p.system_prompt,
+                name=participant.name,
+                role=participant.role,
+                system_prompt=participant.system_prompt,
                 model=assigned_model
             )
             self.critics.append(critic)
 
+            # Broadcast that this participant is ready
+            await self.broadcast_event(session_id, "participant_generated", {
+                "index": i + 1,
+                "total": self.num_participants,
+                "participant": {
+                    "name": participant.name,
+                    "role": participant.role,
+                    "expertise": participant.expertise,
+                    "perspective": participant.perspective,
+                    "model": assigned_model
+                }
+            })
+
+        # Generate moderator config
+        await self.broadcast_event(session_id, "moderator_generating", {
+            "message": "Configuring moderator..."
+        })
+
+        moderator_config = await loop.run_in_executor(
+            None,
+            lambda: self.meta.generate_moderator_config(
+                topic=title,
+                content=initial_content,
+                participants=participants,
+                goal=goal
+            )
+        )
+
+        # Create moderator
         self.moderator = DynamicModerator(
-            moderator_focus=config.moderator_focus,
-            model=self.model # Moderator typically stays consistent with primary choice or best reasoning model
+            moderator_focus=moderator_config["moderator_focus"],
+            model=self.model
+        )
+
+        # Build the RoundtableConfig
+        config = RoundtableConfig(
+            participants=participants,
+            moderator_focus=moderator_config["moderator_focus"],
+            convergence_criteria=moderator_config["convergence_criteria"]
         )
 
         self.roundtable_config = config
@@ -127,14 +237,18 @@ class DynamicAsyncOrchestrator:
         document_type: str = "document",
         metadata: Optional[Dict[str, Any]] = None,
         goal: Optional[str] = None,
-        participant_style: Optional[str] = None
+        participant_style: Optional[str] = None,
+        session_id: Optional[str] = None
     ) -> Tuple[Document, Dict[str, Any]]:
         """
         Run dynamic refinement with WebSocket updates.
         """
 
-        # Create session
-        session_id = self.storage.create_session(title)
+        # Create session (or use provided session_id)
+        if session_id:
+            self.storage.create_session_with_id(session_id, title)
+        else:
+            session_id = self.storage.create_session(title)
         logger = RefinementLogger(session_id, verbose=self.verbose)
 
         await self.broadcast_event(session_id, "session_created", {
@@ -162,13 +276,16 @@ class DynamicAsyncOrchestrator:
             "model": self.model
         })
 
-        # Run generation in executor to allow async broadcasts
-        loop = asyncio.get_event_loop()
-        config = await loop.run_in_executor(
-            None,
-            lambda: self.generate_roundtable(title, initial_content, goal, participant_style)
+        # Use streaming generation for real-time updates
+        config = await self.generate_roundtable_streaming(
+            session_id=session_id,
+            title=title,
+            initial_content=initial_content,
+            goal=goal,
+            participant_style=participant_style
         )
 
+        # Final roundtable_generated event with complete config
         await self.broadcast_event(session_id, "roundtable_generated", {
             "participants": [
                 {
@@ -176,7 +293,7 @@ class DynamicAsyncOrchestrator:
                     "role": p.role,
                     "expertise": p.expertise,
                     "perspective": p.perspective,
-                    "model": get_model_name(self.critics[i].llm) # Send assigned model to UI
+                    "model": get_model_name(self.critics[i].llm)
                 }
                 for i, p in enumerate(config.participants)
             ],
@@ -438,41 +555,9 @@ class DynamicAsyncOrchestrator:
         if not config_dict:
             raise ValueError("Roundtable config not found for session")
 
-        # Reconstruct roundtable from saved config
-        self.roundtable_config = RoundtableConfig(**config_dict)
-
-        # Recreate critics and moderator
-        diverse_models = [
-            "gpt-5.2",
-            "gemini-3-pro-preview",
-            "gpt-5.2-pro",
-            "gemini-3-flash-preview",
-            "claude-3-5-sonnet-20240620",
-            "gpt-5",
-            "gemini-2.5-flash",
-            "gpt-4o",
-            "gemini-1.5-pro",
-            "gpt-4.1"
-        ]
-
-        self.critics = []
-        for i, p in enumerate(self.roundtable_config.participants):
-            assigned_model = self.model
-            if self.model_strategy == "diverse":
-                assigned_model = diverse_models[i % len(diverse_models)]
-
-            critic = DynamicCritic(
-                name=p.name,
-                role=p.role,
-                system_prompt=p.system_prompt,
-                model=assigned_model
-            )
-            self.critics.append(critic)
-
-        self.moderator = DynamicModerator(
-            moderator_focus=self.roundtable_config.moderator_focus,
-            model=self.model
-        )
+        # Reconstruct roundtable from saved config and setup critics
+        config = RoundtableConfig(**config_dict)
+        self._setup_critics_from_config(config)
 
         logger.info(f"Reconstructed {len(self.critics)} participants from saved config")
 

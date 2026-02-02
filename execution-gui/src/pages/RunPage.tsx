@@ -11,6 +11,9 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+
+// Local storage key for active run (shared with InputPage)
+const ACTIVE_RUN_KEY = 'ai-orchestrator-active-run';
 import {
   ReactFlow,
   Background,
@@ -48,7 +51,9 @@ export default function RunPage() {
   const [generatingStatus, setGeneratingStatus] = useState<{
     phase: 'loading' | 'generating' | 'ready';
     message: string;
-    participants?: Array<{ name: string; role: string }>;
+    participants?: Array<{ name: string; role: string; expertise?: string }>;
+    currentIndex?: number;
+    totalParticipants?: number;
   }>({ phase: 'loading', message: 'Loading...' });
 
   // Load execution trace
@@ -122,7 +127,36 @@ export default function RunPage() {
         setGeneratingStatus({
           phase: 'generating',
           message: data.message || `Generating ${data.num_participants || 3} expert participants...`,
+          participants: [],
+          currentIndex: 0,
+          totalParticipants: data.num_participants || 3,
         });
+      } else if (event.type === 'participant_generating') {
+        const data = event.data as { index: number; total: number; message: string };
+        setGeneratingStatus(prev => ({
+          ...prev,
+          phase: 'generating',
+          message: data.message,
+          currentIndex: data.index,
+          totalParticipants: data.total,
+        }));
+      } else if (event.type === 'participant_generated') {
+        const data = event.data as {
+          index: number;
+          total: number;
+          participant: { name: string; role: string; expertise?: string }
+        };
+        setGeneratingStatus(prev => ({
+          ...prev,
+          participants: [...(prev.participants || []), data.participant],
+          currentIndex: data.index,
+          totalParticipants: data.total,
+        }));
+      } else if (event.type === 'moderator_generating') {
+        setGeneratingStatus(prev => ({
+          ...prev,
+          message: 'Configuring moderator...',
+        }));
       } else if (event.type === 'roundtable_generated') {
         const data = event.data as { participants?: Array<{ name: string; role: string }> };
         setGeneratingStatus({
@@ -152,6 +186,13 @@ export default function RunPage() {
       onMessage: handleWebSocketMessage,
     }
   );
+
+  // Clear localStorage when run completes
+  useEffect(() => {
+    if (trace?.status === 'completed' || trace?.status === 'failed') {
+      localStorage.removeItem(ACTIVE_RUN_KEY);
+    }
+  }, [trace?.status]);
 
   // Poll for status updates if WebSocket not connected
   useEffect(() => {
@@ -221,6 +262,10 @@ export default function RunPage() {
   }, []);
 
   if (isLoading || (trace?.status === 'running' && generatingStatus.phase !== 'ready' && nodes.length === 0)) {
+    const progressPercent = generatingStatus.totalParticipants && generatingStatus.currentIndex
+      ? Math.round((generatingStatus.currentIndex / generatingStatus.totalParticipants) * 100)
+      : 0;
+
     return (
       <div className="run-page loading">
         <div className="generating-container">
@@ -235,16 +280,39 @@ export default function RunPage() {
               : 'Initializing...'}
           </h2>
           <p className="generating-message">{generatingStatus.message}</p>
-          {generatingStatus.participants && (
+
+          {/* Progress bar for participant generation */}
+          {generatingStatus.phase === 'generating' && generatingStatus.totalParticipants && (
+            <div className="generating-progress-container">
+              <div className="generating-progress">
+                <div
+                  className="generating-progress-bar"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="generating-progress-text">
+                {generatingStatus.currentIndex || 0} / {generatingStatus.totalParticipants} participants
+              </span>
+            </div>
+          )}
+
+          {/* Show participants as they're generated */}
+          {generatingStatus.participants && generatingStatus.participants.length > 0 && (
             <div className="generated-participants">
               {generatingStatus.participants.map((p, i) => (
                 <div key={i} className="participant-chip">
                   <span className="participant-icon">🤖</span>
-                  <span className="participant-name">{p.name}</span>
+                  <div className="participant-info">
+                    <span className="participant-name">{p.name}</span>
+                    {p.expertise && (
+                      <span className="participant-expertise">{p.expertise}</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           )}
+
           {isConnected && (
             <div className="connection-status connected">
               <span className="status-dot"></span>
