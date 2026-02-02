@@ -58,6 +58,27 @@ dev = [
     "ruff>=0.1.0",
 ]
 
+# Optional plugin integrations
+langextract = [
+    "langextract",
+]
+pageindex = [
+    "pageindex",
+]
+memu = [
+    "memu-py",
+]
+
+# All optional plugins
+all-plugins = [
+    "ai-orchestrator[langextract,pageindex,memu]",
+]
+
+# Full installation with all providers and plugins
+full = [
+    "ai-orchestrator[all-providers,all-plugins,api,dev]",
+]
+
 [project.urls]
 Homepage = "https://github.com/va2ai/ai-agent-orchestration-platform"
 Documentation = "https://github.com/va2ai/ai-agent-orchestration-platform#readme"
