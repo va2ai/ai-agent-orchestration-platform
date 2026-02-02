@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from api.routes import sessions, refinement, websocket, upload
+from api.routes import sessions, refinement, websocket, upload, execution
 from pathlib import Path
 
 app = FastAPI(
@@ -20,16 +20,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
+# Mount static files for original dashboard
 ui_static = Path(__file__).parent.parent / "ui" / "static"
 ui_static.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(ui_static)), name="static")
+
+# Mount execution GUI static files (React Flow app)
+execution_gui_dist = Path(__file__).parent.parent / "execution-gui" / "dist"
+if execution_gui_dist.exists():
+    app.mount("/execution-gui/assets", StaticFiles(directory=str(execution_gui_dist / "assets")), name="execution-gui-assets")
 
 # Include routers
 app.include_router(sessions.router, prefix="/api/sessions", tags=["Sessions"])
 app.include_router(refinement.router, prefix="/api/refinement", tags=["Refinement"])
 app.include_router(websocket.router, prefix="/ws", tags=["WebSocket"])
 app.include_router(upload.router, prefix="/api/files", tags=["Files"])
+app.include_router(execution.router, prefix="/api/execution", tags=["Execution"])
 
 # Serve dashboard
 @app.get("/")
@@ -38,6 +44,15 @@ async def dashboard():
     if ui_index.exists():
         return FileResponse(ui_index)
     return {"message": "Dashboard not yet available. Use /docs for API documentation."}
+
+# Serve execution GUI (React Flow visualizer)
+@app.get("/visualizer")
+@app.get("/visualizer/{path:path}")
+async def execution_gui(path: str = ""):
+    execution_gui_index = Path(__file__).parent.parent / "execution-gui" / "dist" / "index.html"
+    if execution_gui_index.exists():
+        return FileResponse(execution_gui_index)
+    return {"message": "Execution GUI not yet built. Run 'npm run build' in execution-gui directory."}
 
 @app.get("/health")
 async def health_check():
