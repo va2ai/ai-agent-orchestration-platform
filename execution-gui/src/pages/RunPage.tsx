@@ -45,6 +45,11 @@ export default function RunPage() {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [generatingStatus, setGeneratingStatus] = useState<{
+    phase: 'loading' | 'generating' | 'ready';
+    message: string;
+    participants?: Array<{ name: string; role: string }>;
+  }>({ phase: 'loading', message: 'Loading...' });
 
   // Load execution trace
   const loadTrace = useCallback(async () => {
@@ -106,6 +111,27 @@ export default function RunPage() {
     (event: WebSocketEvent) => {
       console.log('WebSocket event:', event.type, event.data);
 
+      // Handle generation phase events
+      if (event.type === 'session_created') {
+        setGeneratingStatus({
+          phase: 'loading',
+          message: 'Session created, preparing...',
+        });
+      } else if (event.type === 'roundtable_generating') {
+        const data = event.data as { message?: string; num_participants?: number };
+        setGeneratingStatus({
+          phase: 'generating',
+          message: data.message || `Generating ${data.num_participants || 3} expert participants...`,
+        });
+      } else if (event.type === 'roundtable_generated') {
+        const data = event.data as { participants?: Array<{ name: string; role: string }> };
+        setGeneratingStatus({
+          phase: 'ready',
+          message: 'Roundtable ready!',
+          participants: data.participants,
+        });
+      }
+
       // Reload trace on significant events
       if (
         event.type === 'iteration_start' ||
@@ -118,9 +144,10 @@ export default function RunPage() {
     [loadTrace]
   );
 
-  // WebSocket connection (only for running sessions)
+  // WebSocket connection (connect for running or loading sessions)
+  const shouldConnect = trace?.status === 'running' || (isLoading && runId);
   const { isConnected } = useWebSocket(
-    trace?.status === 'running' ? runId ?? null : null,
+    shouldConnect ? runId ?? null : null,
     {
       onMessage: handleWebSocketMessage,
     }
@@ -193,11 +220,38 @@ export default function RunPage() {
     }
   }, []);
 
-  if (isLoading) {
+  if (isLoading || (trace?.status === 'running' && generatingStatus.phase !== 'ready' && nodes.length === 0)) {
     return (
       <div className="run-page loading">
-        <div className="loading-spinner" />
-        <p>Loading execution trace...</p>
+        <div className="generating-container">
+          <div className="generating-animation">
+            <div className="generating-circle"></div>
+            <div className="generating-circle"></div>
+            <div className="generating-circle"></div>
+          </div>
+          <h2 className="generating-title">
+            {generatingStatus.phase === 'generating'
+              ? 'Generating Roundtable'
+              : 'Initializing...'}
+          </h2>
+          <p className="generating-message">{generatingStatus.message}</p>
+          {generatingStatus.participants && (
+            <div className="generated-participants">
+              {generatingStatus.participants.map((p, i) => (
+                <div key={i} className="participant-chip">
+                  <span className="participant-icon">🤖</span>
+                  <span className="participant-name">{p.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {isConnected && (
+            <div className="connection-status connected">
+              <span className="status-dot"></span>
+              Live connection
+            </div>
+          )}
+        </div>
       </div>
     );
   }

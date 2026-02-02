@@ -36,7 +36,9 @@ export default function InputPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recentRuns, setRecentRuns] = useState<RunListItem[]>([]);
+  const [fileName, setFileName] = useState<string | null>(null);
   const detectionTimeoutRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debounced document type detection
   const detectType = useCallback(async (content: string) => {
@@ -97,6 +99,46 @@ export default function InputPage() {
     }
   }
 
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 1MB)
+    if (file.size > 1024 * 1024) {
+      setError('File too large. Maximum size is 1MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      setDocument(content);
+      setFileName(file.name);
+
+      // Auto-fill title from filename if empty
+      if (!title) {
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+        setTitle(nameWithoutExt);
+      }
+
+      // Trigger type detection
+      detectType(content);
+      setError(null);
+    };
+    reader.onerror = () => {
+      setError('Failed to read file');
+    };
+    reader.readAsText(file);
+  }
+
+  function clearFile() {
+    setFileName(null);
+    setDocument('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!document.trim()) {
@@ -148,13 +190,41 @@ export default function InputPage() {
 
           <div className="form-group">
             <label htmlFor="document">Document</label>
+            <div className="file-upload-area">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".txt,.md,.markdown,.json,.xml,.html,.csv"
+                className="file-input"
+                id="file-upload"
+              />
+              <label htmlFor="file-upload" className="file-upload-label">
+                <span className="upload-icon">📄</span>
+                <span className="upload-text">
+                  {fileName ? fileName : 'Click to upload or drag a file'}
+                </span>
+                <span className="upload-hint">
+                  Supports .txt, .md, .json, .xml, .html, .csv (max 1MB)
+                </span>
+              </label>
+              {fileName && (
+                <button type="button" className="clear-file-btn" onClick={clearFile}>
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="divider-text">or paste content below</div>
             <textarea
               id="document"
               value={document}
-              onChange={handleDocumentChange}
+              onChange={(e) => {
+                handleDocumentChange(e);
+                if (fileName) setFileName(null);
+              }}
               placeholder="Enter your document here..."
               className="document-textarea"
-              rows={12}
+              rows={10}
             />
             <div className="char-count">{document.length.toLocaleString()} characters</div>
           </div>

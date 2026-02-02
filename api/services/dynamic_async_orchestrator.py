@@ -153,8 +153,21 @@ class DynamicAsyncOrchestrator:
             logger.info(f"Goal: {goal}")
         if participant_style:
             logger.info(f"Participant Style: {participant_style}")
-            
-        config = self.generate_roundtable(title, initial_content, goal, participant_style)
+
+        # Broadcast that we're starting roundtable generation
+        await self.broadcast_event(session_id, "roundtable_generating", {
+            "status": "generating",
+            "message": "Analyzing document and generating expert participants...",
+            "num_participants": self.num_participants,
+            "model": self.model
+        })
+
+        # Run generation in executor to allow async broadcasts
+        loop = asyncio.get_event_loop()
+        config = await loop.run_in_executor(
+            None,
+            lambda: self.generate_roundtable(title, initial_content, goal, participant_style)
+        )
 
         await self.broadcast_event(session_id, "roundtable_generated", {
             "participants": [

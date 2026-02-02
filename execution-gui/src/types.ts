@@ -149,6 +149,7 @@ export interface StartOrchestrationResponse {
 // WebSocket event types
 export type WebSocketEventType =
   | 'session_created'
+  | 'roundtable_generating'
   | 'roundtable_generated'
   | 'iteration_start'
   | 'critic_review_start'
