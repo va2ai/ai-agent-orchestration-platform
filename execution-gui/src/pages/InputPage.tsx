@@ -3,26 +3,86 @@
  *
  * Features:
  * - Textarea for document input
+ * - AI-powered document type detection
  * - Configuration options
  * - "Run Orchestration" button
  * - Recent runs list
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { startOrchestration, listRuns } from '../api';
+import { startOrchestration, listRuns, detectDocumentType } from '../api';
 import type { RunListItem } from '../types';
+
+const DOCUMENT_TYPES = [
+  { value: 'document', label: 'General Document' },
+  { value: 'prd', label: 'Product Requirements (PRD)' },
+  { value: 'code-review', label: 'Code Review' },
+  { value: 'architecture', label: 'System Architecture' },
+  { value: 'business-strategy', label: 'Business Strategy' },
+];
 
 export default function InputPage() {
   const navigate = useNavigate();
   const [document, setDocument] = useState('');
   const [title, setTitle] = useState('');
+  const [documentType, setDocumentType] = useState('document');
+  const [detectionConfidence, setDetectionConfidence] = useState<string | null>(null);
+  const [detectionReason, setDetectionReason] = useState<string | null>(null);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [maxIterations, setMaxIterations] = useState(3);
   const [numParticipants, setNumParticipants] = useState(3);
   const [model, setModel] = useState('gpt-4-turbo');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recentRuns, setRecentRuns] = useState<RunListItem[]>([]);
+  const detectionTimeoutRef = useRef<number | null>(null);
+
+  // Debounced document type detection
+  const detectType = useCallback(async (content: string) => {
+    if (content.trim().length < 50) {
+      setDetectionConfidence(null);
+      setDetectionReason(null);
+      return;
+    }
+
+    setIsDetecting(true);
+    try {
+      const result = await detectDocumentType(content);
+      setDocumentType(result.document_type);
+      setDetectionConfidence(result.confidence);
+      setDetectionReason(result.reason);
+    } catch {
+      // Silently fail - keep current type
+    } finally {
+      setIsDetecting(false);
+    }
+  }, []);
+
+  // Handle document change with debounced detection
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setDocument(newContent);
+
+    // Clear previous timeout
+    if (detectionTimeoutRef.current) {
+      clearTimeout(detectionTimeoutRef.current);
+    }
+
+    // Set new timeout for detection (1.5 seconds after typing stops)
+    detectionTimeoutRef.current = window.setTimeout(() => {
+      detectType(newContent);
+    }, 1500);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (detectionTimeoutRef.current) {
+        clearTimeout(detectionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadRecentRuns();
@@ -52,7 +112,7 @@ export default function InputPage() {
         document,
         title: title || 'Untitled',
         max_iterations: maxIterations,
-        document_type: 'document',
+        document_type: documentType,
         num_participants: numParticipants,
         model,
       });
@@ -91,12 +151,43 @@ export default function InputPage() {
             <textarea
               id="document"
               value={document}
-              onChange={(e) => setDocument(e.target.value)}
+              onChange={handleDocumentChange}
               placeholder="Enter your document here..."
               className="document-textarea"
               rows={12}
             />
             <div className="char-count">{document.length.toLocaleString()} characters</div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="documentType">
+              Document Type
+              {isDetecting && <span className="detecting-badge">Detecting...</span>}
+              {detectionConfidence && !isDetecting && (
+                <span className={`confidence-badge confidence-${detectionConfidence}`}>
+                  AI: {detectionConfidence}
+                </span>
+              )}
+            </label>
+            <select
+              id="documentType"
+              value={documentType}
+              onChange={(e) => {
+                setDocumentType(e.target.value);
+                setDetectionConfidence(null); // Clear AI indicator when manually changed
+                setDetectionReason(null);
+              }}
+              className="input-field"
+            >
+              {DOCUMENT_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+            {detectionReason && (
+              <div className="detection-reason">{detectionReason}</div>
+            )}
           </div>
 
           <div className="form-row">

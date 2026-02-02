@@ -704,3 +704,48 @@ body {
   color: var(--text-secondary);
   font-size: 0.875rem;
 }
+
+/* Document Type Detection */
+.detecting-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
+}
+
+.confidence-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.confidence-high {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-green);
+}
+
+.confidence-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-orange);
+}
+
+.confidence-low {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-muted);
+}
+
+.detection-reason {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
+}

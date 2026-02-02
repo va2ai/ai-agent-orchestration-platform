@@ -312,3 +312,64 @@ async def get_run_status(run_id: str):
             }
 
     raise HTTPException(status_code=404, detail="Run not found")
+
+
+@router.post("/detect-document-type")
+async def detect_document_type(request: dict):
+    """
+    Use AI to detect the document type from content.
+
+    Returns the detected document type and confidence.
+    """
+    content = request.get("content", "")
+    if not content or len(content.strip()) < 50:
+        return {
+            "document_type": "document",
+            "confidence": "low",
+            "reason": "Content too short to determine type"
+        }
+
+    # Use a fast model for detection
+    from ai_orchestrator.utils.llm_factory import create_llm
+    from langchain_core.messages import HumanMessage
+    import json
+
+    llm = create_llm("gpt-4-turbo", temperature=0.1, json_mode=True)
+
+    prompt = f"""Analyze the following document and determine its type.
+
+Document types to choose from:
+- "prd" - Product Requirements Document (features, user stories, acceptance criteria, MVP scope)
+- "architecture" - System Architecture (technical design, components, APIs, data models)
+- "code-review" - Code Review (code snippets, pull request, implementation review)
+- "business-strategy" - Business Strategy (market analysis, competitive positioning, business model)
+- "document" - General Document (anything else)
+
+Return JSON with:
+- "document_type": one of the types above
+- "confidence": "high", "medium", or "low"
+- "reason": brief explanation (1 sentence)
+
+Document content (first 2000 chars):
+---
+{content[:2000]}
+---
+
+Return only valid JSON."""
+
+    try:
+        response = await llm.ainvoke([HumanMessage(content=prompt)])
+        result = json.loads(response.content)
+
+        # Validate the document type
+        valid_types = ["prd", "architecture", "code-review", "business-strategy", "document"]
+        if result.get("document_type") not in valid_types:
+            result["document_type"] = "document"
+
+        return result
+    except Exception as e:
+        return {
+            "document_type": "document",
+            "confidence": "low",
+            "reason": f"Detection failed: {str(e)}"
+        }

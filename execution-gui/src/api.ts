@@ -55,3 +55,23 @@ export async function getRunStatus(
   }
   return response.json();
 }
+
+export interface DocumentTypeDetectionResult {
+  document_type: string;
+  confidence: 'high' | 'medium' | 'low';
+  reason: string;
+}
+
+export async function detectDocumentType(content: string): Promise<DocumentTypeDetectionResult> {
+  const response = await fetch(`${API_BASE}/detect-document-type`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to detect document type: ${response.statusText}`);
+  }
+  return response.json();
+}
