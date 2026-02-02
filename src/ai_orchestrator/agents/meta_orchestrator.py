@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
-from utils.llm_factory import create_llm
+from ..utils.llm_factory import create_llm
 import os
 
 

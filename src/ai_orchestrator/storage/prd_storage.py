@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Union
-from models.prd_models import PRD, PRDReview
-from models.document_models import Document, DocumentReview
+from ..models.prd_models import PRD, PRDReview
+from ..models.document_models import Document, DocumentReview
 
 class PRDStorage:
     """Handle PRD versioning and persistence"""

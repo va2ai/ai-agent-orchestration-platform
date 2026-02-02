@@ -7,12 +7,12 @@ from typing import Tuple, Dict, Any, Optional, List
 from datetime import datetime
 from pathlib import Path
 
-from agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig
-from agents.dynamic_critic import DynamicCritic, DynamicModerator
-from models.document_models import Document, DocumentReview
-from storage.prd_storage import PRDStorage
-from utils.convergence import ConvergenceChecker
-from utils.logger import PRDLogger as RefinementLogger
+from ..agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig
+from ..agents.dynamic_critic import DynamicCritic, DynamicModerator
+from ..models.document_models import Document, DocumentReview
+from ..storage.prd_storage import PRDStorage
+from ..utils.convergence import ConvergenceChecker
+from ..utils.logger import PRDLogger as RefinementLogger
 
 
 class DynamicOrchestrator:

@@ -1,11 +1,11 @@
-from agents.prd_critic import PRDCritic
-from agents.engineering_critic import EngineeringCritic
-from agents.ai_risk_critic import AIRiskCritic
-from agents.moderator import Moderator
-from models.prd_models import PRD, PRDReview
-from storage.prd_storage import PRDStorage
-from utils.convergence import ConvergenceChecker
-from utils.logger import PRDLogger
+from ..agents.prd_critic import PRDCritic
+from ..agents.engineering_critic import EngineeringCritic
+from ..agents.ai_risk_critic import AIRiskCritic
+from ..agents.moderator import Moderator
+from ..models.prd_models import PRD, PRDReview
+from ..storage.prd_storage import PRDStorage
+from ..utils.convergence import ConvergenceChecker
+from ..utils.logger import PRDLogger
 from typing import List, Tuple, Dict, Any
 from datetime import datetime
 

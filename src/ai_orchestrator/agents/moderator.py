@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
-from models.prd_models import PRD, PRDReview
-from prompts.system_prompts import MODERATOR_SYSTEM, get_refine_prompt
+from ..models.prd_models import PRD, PRDReview
+from ..prompts.system_prompts import MODERATOR_SYSTEM, get_refine_prompt
 from typing import List, Optional, Tuple
 import os
 

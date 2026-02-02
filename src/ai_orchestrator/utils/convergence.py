@@ -3,13 +3,13 @@ import difflib
 
 # Support both old and new models
 try:
-    from models.prd_models import PRD, PRDReview
+    from ..models.prd_models import PRD, PRDReview
 except ImportError:
     PRD = None
     PRDReview = None
 
 try:
-    from models.document_models import Document, DocumentReview
+    from ..models.document_models import Document, DocumentReview
 except ImportError:
     Document = None
     DocumentReview = None

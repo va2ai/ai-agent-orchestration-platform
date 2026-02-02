@@ -2,7 +2,7 @@
 import argparse
 import sys
 from pathlib import Path
-from orchestration.looping_orchestrator import LoopingOrchestrator
+from ai_orchestrator.orchestration.looping_orchestrator import LoopingOrchestrator
 from dotenv import load_dotenv
 
 def main():

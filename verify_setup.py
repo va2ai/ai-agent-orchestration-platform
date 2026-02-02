@@ -12,14 +12,15 @@ def check_imports():
     """Test all critical imports"""
     print("Checking imports...")
     try:
-        from agents.prd_critic import PRDCritic
-        from agents.engineering_critic import EngineeringCritic
-        from agents.ai_risk_critic import AIRiskCritic
-        from agents.moderator import Moderator
-        from models.prd_models import PRD, PRDReview, PRDIssue
-        from storage.prd_storage import PRDStorage
-        from utils.convergence import ConvergenceChecker
-        from orchestration.looping_orchestrator import LoopingOrchestrator
+        from ai_orchestrator.agents.prd_critic import PRDCritic
+        from ai_orchestrator.agents.engineering_critic import EngineeringCritic
+        from ai_orchestrator.agents.ai_risk_critic import AIRiskCritic
+        from ai_orchestrator.agents.moderator import Moderator
+        from ai_orchestrator.models.prd_models import PRD, PRDReview, PRDIssue
+        from ai_orchestrator.storage.prd_storage import PRDStorage
+        from ai_orchestrator.utils.convergence import ConvergenceChecker
+        from ai_orchestrator.orchestration.looping_orchestrator import LoopingOrchestrator
+        from ai_orchestrator import run_roundtable, RoundtableConfig
         print("  All imports successful")
         return True
     except ImportError as e:
@@ -57,12 +58,12 @@ def check_directories():
     """Check required directories exist"""
     print("\nChecking directories...")
     required_dirs = [
-        "agents",
-        "models",
-        "orchestration",
-        "storage",
-        "prompts",
-        "utils",
+        "src/ai_orchestrator/agents",
+        "src/ai_orchestrator/models",
+        "src/ai_orchestrator/orchestration",
+        "src/ai_orchestrator/storage",
+        "src/ai_orchestrator/prompts",
+        "src/ai_orchestrator/utils",
         "data/prds"
     ]
     all_exist = True
@@ -79,7 +80,7 @@ def check_models():
     """Test Pydantic models"""
     print("\nChecking Pydantic models...")
     try:
-        from models.prd_models import PRD, PRDIssue, PRDReview
+        from ai_orchestrator.models.prd_models import PRD, PRDIssue, PRDReview
 
         # Create test issue
         issue = PRDIssue(
@@ -118,7 +119,7 @@ def check_storage():
     """Test storage functionality"""
     print("\nChecking storage...")
     try:
-        from storage.prd_storage import PRDStorage
+        from ai_orchestrator.storage.prd_storage import PRDStorage
         storage = PRDStorage()
         print(f"  Storage initialized: {storage.base_dir}")
         print(f"  Index file exists: {storage.index_file.exists()}")
