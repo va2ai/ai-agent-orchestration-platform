@@ -72,6 +72,8 @@ Content:
 
 Provide your expert review following the instructions in your system prompt.
 Focus on your specific area of expertise and flag any issues you identify.
+
+Return your response as a JSON object with 'issues' and 'overall_assessment' fields.
 """
 
         messages = [
@@ -211,7 +213,7 @@ Guidelines:
 - Preserve the document structure and formatting
 - Don't add unnecessary content
 
-Output ONLY the refined document content (markdown format).
+Output ONLY the refined document content in markdown format (not json, plain markdown text).
 """
 
         human_prompt = f"""Current Document:
