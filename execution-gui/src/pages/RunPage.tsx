@@ -1,14 +1,15 @@
 /**
- * Run Page - React Flow execution visualization.
+ * Run Page V2 - Horizontal React Flow execution visualization.
  *
- * Features:
- * - Full-screen React Flow canvas
- * - Read-only (no drag handles, no editing)
- * - Side panel for node details
+ * V2 Features:
+ * - Horizontal layout (left to right)
+ * - No agent nodes - agents embedded in iterations
+ * - Support for agent row selection
+ * - Side panel always shows useful content
  * - WebSocket for real-time updates
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
@@ -24,11 +25,11 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { nodeTypes } from '../components/nodes';
-import SidePanel from '../components/SidePanel';
+import SidePanel, { type Selection } from '../components/SidePanel';
 import { getExecutionTrace, getRunStatus } from '../api';
 import { buildGraph } from '../utils/graphBuilder';
 import { useWebSocket } from '../hooks/useWebSocket';
-import type { ExecutionTrace, ExecutionIssue, WebSocketEvent } from '../types';
+import type { ExecutionTrace, WebSocketEvent } from '../types';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -36,12 +37,12 @@ const initialEdges: Edge[] = [];
 export default function RunPage() {
   const { runId } = useParams<{ runId: string }>();
   const navigate = useNavigate();
+  const flowContainerRef = useRef<HTMLDivElement>(null);
 
   const [trace, setTrace] = useState<ExecutionTrace | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedIssues, setSelectedIssues] = useState<ExecutionIssue[]>([]);
+  const [selection, setSelection] = useState<Selection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,7 +54,7 @@ export default function RunPage() {
       const data = await getExecutionTrace(runId);
       setTrace(data);
 
-      // Build graph from trace
+      // Build graph from trace (V2: horizontal, no agent nodes)
       const { nodes: newNodes, edges: newEdges } = buildGraph(data);
       setNodes(newNodes);
       setEdges(newEdges);
@@ -70,6 +71,35 @@ export default function RunPage() {
   useEffect(() => {
     loadTrace();
   }, [loadTrace]);
+
+  // Handle agent row click events from IterationNode
+  useEffect(() => {
+    const handleAgentRowClick = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        nodeId: string;
+        agentIndex: number;
+        iterationIndex: number;
+      }>;
+
+      setSelection({
+        type: 'agent',
+        nodeId: customEvent.detail.nodeId,
+        nodeType: 'iteration',
+        agentIndex: customEvent.detail.agentIndex,
+      });
+    };
+
+    const container = flowContainerRef.current;
+    if (container) {
+      container.addEventListener('agent-row-click', handleAgentRowClick);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('agent-row-click', handleAgentRowClick);
+      }
+    };
+  }, []);
 
   // Handle WebSocket events for real-time updates
   const handleWebSocketMessage = useCallback(
@@ -117,27 +147,18 @@ export default function RunPage() {
   // Handle node selection
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      setSelectedNode(node);
-
-      // Get issues for this node if it's an iteration
-      if (node.type === 'iteration' && trace) {
-        const iterationData = node.data as Record<string, unknown>;
-        const iterationIndex = iterationData.iterationIndex as number;
-        const iteration = trace.iterations.find(
-          (it) => it.iteration_index === iterationIndex
-        );
-        setSelectedIssues(iteration?.issues || []);
-      } else {
-        setSelectedIssues([]);
-      }
+      setSelection({
+        type: 'node',
+        nodeId: node.id,
+        nodeType: node.type || 'unknown',
+      });
     },
-    [trace]
+    []
   );
 
-  // Clear selection
+  // Clear selection (show default summary)
   const clearSelection = useCallback(() => {
-    setSelectedNode(null);
-    setSelectedIssues([]);
+    setSelection(null);
   }, []);
 
   // Memoize flow options for read-only mode
@@ -149,9 +170,28 @@ export default function RunPage() {
       zoomOnScroll: true,
       panOnScroll: true,
       panOnDrag: true,
+      fitView: true,
+      fitViewOptions: {
+        padding: 0.2,
+        maxZoom: 1.5,
+      },
     }),
     []
   );
+
+  // MiniMap node colors
+  const getNodeColor = useCallback((node: Node) => {
+    switch (node.type) {
+      case 'input':
+        return '#3b82f6'; // Blue
+      case 'iteration':
+        return '#8b5cf6'; // Purple
+      case 'convergence':
+        return '#f59e0b'; // Orange
+      default:
+        return '#6b7280'; // Gray
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -173,7 +213,7 @@ export default function RunPage() {
   }
 
   return (
-    <div className="run-page">
+    <div className="run-page run-page-v2">
       <header className="run-header">
         <button className="back-button" onClick={() => navigate('/')}>
           ← Back
@@ -192,8 +232,8 @@ export default function RunPage() {
         </div>
       </header>
 
-      <div className="run-content">
-        <div className="flow-container">
+      <div className="run-content run-content-v2">
+        <div className="flow-container flow-container-v2" ref={flowContainerRef}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -202,41 +242,30 @@ export default function RunPage() {
             onNodeClick={onNodeClick}
             onPaneClick={clearSelection}
             nodeTypes={nodeTypes as NodeTypes}
-            fitView
             {...flowOptions}
           >
             <Background />
             <Controls showInteractive={false} />
             <MiniMap
               nodeStrokeWidth={3}
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case 'input':
-                    return '#3b82f6';
-                  case 'iteration':
-                    return '#8b5cf6';
-                  case 'agent':
-                    return '#10b981';
-                  case 'convergence':
-                    return '#f59e0b';
-                  default:
-                    return '#6b7280';
-                }
-              }}
+              nodeColor={getNodeColor}
+              zoomable
+              pannable
             />
           </ReactFlow>
         </div>
 
         <SidePanel
-          selectedNode={selectedNode}
-          issues={selectedIssues}
+          selection={selection}
+          nodes={nodes}
+          trace={trace}
           onClose={clearSelection}
         />
       </div>
 
       {/* Summary footer */}
       {trace && trace.status === 'completed' && (
-        <footer className="run-footer">
+        <footer className="run-footer run-footer-v2">
           <div className="summary-stat">
             <span className="stat-label">Total Issues</span>
             <span className="stat-value">{trace.total_issues_identified}</span>

@@ -749,3 +749,547 @@ body {
   margin-top: 0.5rem;
   font-style: italic;
 }
+
+/* ============================================
+   V2 STYLES - Horizontal Flow Layout
+   ============================================ */
+
+/* V2 Node Styles - Horizontal Layout */
+.input-node-v2,
+.iteration-node-v2,
+.convergence-node-v2 {
+  background: var(--node-bg);
+  border: 2px solid var(--node-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 180px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.input-node-v2:hover,
+.iteration-node-v2:hover,
+.convergence-node-v2:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Input Node V2 */
+.input-node-v2 {
+  border-color: var(--accent-blue);
+  min-width: 160px;
+}
+
+.input-node-v2 .node-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.input-node-v2 .node-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.input-node-v2 .input-title {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  margin: 0 auto 0.25rem;
+}
+
+.input-node-v2 .input-length {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* Iteration Node V2 - Container with embedded agents */
+.iteration-node-v2 {
+  border-color: var(--accent-purple);
+  min-width: 200px;
+  max-width: 240px;
+  text-align: left;
+}
+
+.iteration-node-v2.has-high-issues {
+  border-color: var(--accent-red);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.iteration-node-v2 .iteration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.iteration-node-v2 .iteration-number {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.iteration-node-v2 .iteration-delta {
+  font-size: 0.6875rem;
+  color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.15);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+/* Issue badges */
+.issue-badges {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-high {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red);
+}
+
+.badge-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-orange);
+}
+
+.badge-low {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue);
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-green);
+}
+
+/* Agent summaries embedded in iteration node */
+.agent-summaries {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.75rem;
+}
+
+.agent-row:hover {
+  background: var(--bg-tertiary);
+}
+
+.agent-row.has-high {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.agent-row.has-high:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.agent-row .agent-icon {
+  font-size: 0.875rem;
+}
+
+.agent-row .agent-name {
+  flex: 1;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-row .agent-issues {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+}
+
+/* Convergence Node V2 */
+.convergence-node-v2 {
+  border-color: var(--accent-orange);
+  min-width: 160px;
+}
+
+.convergence-node-v2.converged {
+  border-color: var(--accent-green);
+}
+
+.convergence-node-v2.not-converged {
+  border-color: var(--accent-orange);
+}
+
+.convergence-node-v2 .node-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.convergence-node-v2 .node-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.convergence-node-v2 .convergence-stats {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.convergence-node-v2 .iteration-count {
+  font-weight: 500;
+}
+
+.convergence-node-v2 .final-issues {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+/* Side Panel V2 - Default state */
+.side-panel.default-state {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel.default-state .panel-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Run Summary in Side Panel */
+.run-summary {
+  font-size: 0.875rem;
+}
+
+.summary-section {
+  margin-bottom: 1.25rem;
+}
+
+.summary-section h4 {
+  margin: 0 0 0.625rem 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.summary-section dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.summary-section dt {
+  color: var(--text-muted);
+}
+
+.summary-section dd {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.status-badge {
+  text-transform: capitalize;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+
+.status-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-green);
+}
+
+.status-badge.running {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-orange);
+}
+
+.status-badge.failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red);
+}
+
+.status-badge.pending {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-muted);
+}
+
+.stop-reason {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Issue summary grid */
+.issue-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.issue-stat {
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.issue-stat .count {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.issue-stat .label {
+  display: block;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.issue-stat.high .count {
+  color: var(--accent-red);
+}
+
+.issue-stat.medium .count {
+  color: var(--accent-orange);
+}
+
+.issue-stat.low .count {
+  color: var(--accent-blue);
+}
+
+.summary-instruction {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.summary-instruction p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
+/* Severity breakdown in iteration details */
+.severity-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.severity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.severity-row.high {
+  border-left: 3px solid var(--accent-red);
+}
+
+.severity-row.medium {
+  border-left: 3px solid var(--accent-orange);
+}
+
+.severity-row.low {
+  border-left: 3px solid var(--accent-blue);
+}
+
+.severity-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+}
+
+.severity-row.high .severity-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red);
+}
+
+.severity-row.medium .severity-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-orange);
+}
+
+.severity-row.low .severity-badge {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue);
+}
+
+.severity-count {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Agent contributions in iteration details */
+.agent-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.agent-contrib {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+}
+
+.agent-contrib.has-high {
+  border-left: 3px solid var(--accent-red);
+}
+
+.agent-contrib .agent-name {
+  color: var(--text-primary);
+}
+
+.agent-contrib .agent-issues {
+  color: var(--text-muted);
+}
+
+.agent-contrib .high-badge {
+  color: var(--accent-red);
+  font-weight: 600;
+}
+
+/* Issue list V2 */
+.issues-list-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.issue-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.issue-group.high .issue-item-v2 {
+  border-left: 3px solid var(--accent-red);
+}
+
+.issue-group.medium .issue-item-v2 {
+  border-left: 3px solid var(--accent-orange);
+}
+
+.issue-group.low .issue-item-v2 {
+  border-left: 3px solid var(--accent-blue);
+}
+
+.issue-item-v2 {
+  padding: 0.625rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.issue-item-v2 .issue-message {
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  display: block;
+}
+
+.issue-item-v2 .issue-category {
+  display: inline-block;
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  margin-top: 0.375rem;
+}
+
+.issue-item-v2 .issue-fix {
+  margin-top: 0.5rem;
+  padding-top: 0.375rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Convergence details V2 */
+.convergence-details-v2 .final-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metric-value.high {
+  color: var(--accent-red);
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-muted);
+}
+
+/* V2 Layout specific overrides */
+.run-page-v2 .run-content-v2 {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.run-page-v2 .flow-container-v2 {
+  flex: 1;
+  background: var(--bg-primary);
+  min-height: 400px;
+}

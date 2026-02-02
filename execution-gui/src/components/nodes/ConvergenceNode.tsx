@@ -1,10 +1,11 @@
 /**
- * Convergence Node - Represents the terminal state of the run.
+ * Convergence Node V2 - Terminal state with enhanced context.
  *
- * Displays:
- * - Stop icon
- * - Convergence reason
- * - Whether it truly converged or hit max iterations
+ * V2 Design:
+ * - Horizontal flow (handle on left)
+ * - Clear stop reason display
+ * - Issue count summary
+ * - Never show "Unknown" - use fallback labels
  */
 
 import { memo } from 'react';
@@ -19,11 +20,11 @@ function ConvergenceNode({ data }: ConvergenceNodeProps) {
   const getStopLabel = () => {
     switch (data.stoppedBy) {
       case 'no_high_issues':
-        return 'No High Issues';
+        return 'Converged';
       case 'max_iterations':
         return 'Max Iterations';
       case 'delta_threshold':
-        return 'Stable Document';
+        return 'Stabilized';
       case 'custom':
         return 'Custom Stop';
       default:
@@ -38,18 +39,40 @@ function ConvergenceNode({ data }: ConvergenceNodeProps) {
     if (data.stoppedBy === 'max_iterations') {
       return '⚠️';
     }
+    if (data.stoppedBy === 'delta_threshold') {
+      return '📊';
+    }
     return '🛑';
   };
 
+  // Compact iteration display
+  const iterationDisplay = `${data.totalIterations || 0}/${data.maxIterations || '?'}`;
+
   return (
-    <div className={`convergence-node ${data.converged ? 'converged' : 'not-converged'}`}>
-      <Handle type="target" position={Position.Top} />
+    <div className={`convergence-node-v2 ${data.converged ? 'converged' : 'not-converged'}`}>
+      <Handle type="target" position={Position.Left} />
 
       <div className="node-icon">{getIcon()}</div>
       <div className="node-title">{getStopLabel()}</div>
-      <div className="node-content">
-        <div className="node-reason">{data.reason}</div>
+
+      <div className="convergence-stats">
+        <span className="iteration-count">{iterationDisplay} iters</span>
       </div>
+
+      {/* Final issue summary */}
+      {(data.finalHighCount > 0 || data.finalMediumCount > 0 || data.finalLowCount > 0) && (
+        <div className="final-issues">
+          {data.finalHighCount > 0 && (
+            <span className="badge badge-high">{data.finalHighCount}</span>
+          )}
+          {data.finalMediumCount > 0 && (
+            <span className="badge badge-medium">{data.finalMediumCount}</span>
+          )}
+          {data.finalLowCount > 0 && (
+            <span className="badge badge-low">{data.finalLowCount}</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
