@@ -20,7 +20,7 @@ This platform orchestrates multiple AI agents in "roundtable" sessions where the
 | **AI/ML** | LangChain, OpenAI GPT, Google Gemini, Anthropic Claude |
 | **Real-time** | WebSockets, Server-Sent Events |
 | **Architecture** | Clean Architecture, Protocol-based interfaces, Factory pattern |
-| **Frontend** | Vanilla JS, Tailwind CSS, WebSocket client |
+| **Frontend** | React, TypeScript, Vite, Tailwind CSS, WebSocket client |
 | **Testing** | pytest, async test fixtures |
 
 ## System Flow
@@ -65,18 +65,52 @@ flowchart TD
 
 ```
 ai-agent-orchestration-platform/
-├── src/ai_orchestrator/        # Core library package
-│   ├── types.py                # Protocol-based interfaces
-│   ├── convergence.py          # Stop condition algorithms
-│   ├── orchestration/          # Orchestration engines
-│   ├── agents/                 # Pluggable AI agents
-│   └── utils/                  # LLM factory, logging
-├── api/                        # FastAPI REST + WebSocket server
-│   ├── routes/                 # Endpoint handlers
-│   └── services/               # Async orchestration service
-├── ui/                         # Real-time web dashboard
-├── docs/                       # Documentation
-└── tests/                      # Test suite
+├── src/ai_orchestrator/           # Core library package
+│   ├── types.py                   # Protocol-based interfaces
+│   ├── convergence.py             # Stop condition algorithms
+│   ├── orchestration/             # Orchestration engines
+│   │   ├── runner.py              # run_roundtable implementation
+│   │   ├── looping_orchestrator.py
+│   │   └── dynamic_orchestrator.py
+│   ├── agents/                    # Pluggable AI agents
+│   │   ├── prd_critic.py          # Product quality reviewer
+│   │   ├── engineering_critic.py  # Technical feasibility reviewer
+│   │   ├── ai_risk_critic.py      # AI safety reviewer
+│   │   ├── moderator.py           # Document refiner
+│   │   ├── dynamic_critic.py      # Configurable critic
+│   │   └── meta_orchestrator.py   # AI-generated roundtables
+│   ├── plugins/                   # Extensibility system
+│   │   ├── memory_store.py        # Memory store interface
+│   │   ├── model_provider.py      # LLM provider interface
+│   │   └── retriever.py           # RAG retriever interface
+│   ├── storage/                   # Persistence layer
+│   │   ├── prd_storage.py         # JSON file storage
+│   │   ├── memory_inmemory.py     # In-memory store
+│   │   └── memory_sqlite.py       # SQLite store
+│   └── utils/                     # Utilities
+│       ├── llm_factory.py         # Multi-provider LLM factory
+│       └── logger.py              # Logging infrastructure
+├── api/                           # FastAPI REST + WebSocket server
+│   ├── routes/                    # Endpoint handlers
+│   │   ├── refinement.py          # Refinement start/status/continue
+│   │   ├── sessions.py            # Session CRUD
+│   │   ├── upload.py              # File upload handling
+│   │   └── websocket.py           # Real-time updates
+│   └── services/                  # Business logic
+│       ├── async_orchestrator.py  # Async refinement service
+│       └── dynamic_async_orchestrator.py
+├── execution-gui/                 # React frontend (TypeScript/Vite)
+│   └── src/
+│       ├── components/            # React components
+│       ├── pages/                 # Page components
+│       ├── hooks/                 # Custom React hooks
+│       └── api.ts                 # API client
+├── ui/                            # Legacy web dashboard (vanilla JS)
+├── tests/                         # Test suite
+├── docs/                          # Documentation
+├── data/prds/                     # Session storage
+├── main.py                        # CLI entry point
+└── run_api.py                     # API server entry point
 ```
 
 ## Key Features
@@ -96,6 +130,11 @@ ai-agent-orchestration-platform/
 - WebSocket broadcasting with 7 event types
 - Live progress visualization
 - Reconnection handling with exponential backoff
+
+### Plugin Architecture
+- **Memory Stores**: In-memory and SQLite implementations
+- **Model Providers**: Abstract LLM interface for custom providers
+- **Retrievers**: RAG-ready retriever interface for context injection
 
 ### Clean Public API
 ```python
@@ -129,9 +168,18 @@ cp .env.example .env
 
 ### Run the Web Dashboard
 
+**Option A: FastAPI + Vanilla JS (Production)**
 ```bash
 python run_api.py
 # Open http://localhost:8000
+```
+
+**Option B: React Frontend (Development)**
+```bash
+cd execution-gui
+npm install
+npm run dev
+# Open http://localhost:5173
 ```
 
 ### Run via CLI
