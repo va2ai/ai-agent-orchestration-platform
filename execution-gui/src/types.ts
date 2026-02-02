@@ -74,14 +74,28 @@ export type InputNodeData = Record<string, unknown> & {
   title: string;
 };
 
+// Agent summary embedded within iteration node (V2: no separate agent nodes)
+export interface AgentSummary {
+  name: string;
+  role?: string;
+  issues: number;
+  highIssues: number;
+  assessment?: string;
+}
+
+// V2: Iteration nodes contain embedded agent summaries
 export type IterationNodeData = Record<string, unknown> & {
   label: string;
   iterationIndex: number;
   issueCount: number;
   highIssueCount: number;
+  mediumIssueCount: number;
+  lowIssueCount: number;
   delta: number;
+  agents: AgentSummary[];
 };
 
+// Kept for backward compatibility but no longer used as nodes
 export type AgentNodeData = Record<string, unknown> & {
   label: string;
   name: string;
@@ -91,11 +105,18 @@ export type AgentNodeData = Record<string, unknown> & {
   assessment?: string;
 };
 
+// V2: Enhanced convergence data with more context
 export type ConvergenceNodeData = Record<string, unknown> & {
   label: string;
   stoppedBy: string;
   reason: string;
   converged: boolean;
+  totalIterations: number;
+  maxIterations: number;
+  finalHighCount: number;
+  finalMediumCount: number;
+  finalLowCount: number;
+  deltaThreshold?: number;
 };
 
 // API types
