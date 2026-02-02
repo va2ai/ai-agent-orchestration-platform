@@ -6,13 +6,13 @@ import asyncio
 from typing import Tuple, Dict, Any, Optional, List
 from datetime import datetime
 
-from agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig
-from agents.dynamic_critic import DynamicCritic, DynamicModerator
-from models.document_models import Document, DocumentReview
-from storage.prd_storage import PRDStorage
-from utils.convergence import ConvergenceChecker
-from utils.logger import PRDLogger as RefinementLogger
-from utils.llm_factory import get_model_name
+from ai_orchestrator.agents.meta_orchestrator import MetaOrchestrator, RoundtableConfig
+from ai_orchestrator.agents.dynamic_critic import DynamicCritic, DynamicModerator
+from ai_orchestrator.models.document_models import Document, DocumentReview
+from ai_orchestrator.storage.prd_storage import PRDStorage
+from ai_orchestrator.utils.convergence import ConvergenceChecker
+from ai_orchestrator.utils.logger import PRDLogger as RefinementLogger
+from ai_orchestrator.utils.llm_factory import get_model_name
 
 
 class DynamicAsyncOrchestrator:

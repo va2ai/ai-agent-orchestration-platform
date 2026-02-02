@@ -5,8 +5,8 @@ Dynamic Critic: A critic agent that can take on any role based on generated conf
 from typing import Tuple, Optional
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
-from models.document_models import Document, DocumentReview, DocumentIssue
-from utils.llm_factory import create_llm, extract_token_usage
+from ..models.document_models import Document, DocumentReview, DocumentIssue
+from ..utils.llm_factory import create_llm, extract_token_usage
 import os
 
 

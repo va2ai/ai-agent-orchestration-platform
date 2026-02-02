@@ -1,13 +1,13 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
-from models.prd_models import PRD, PRDReview
-from prompts.system_prompts import ENGINEERING_CRITIC_SYSTEM, get_review_prompt
+from ..models.prd_models import PRD, PRDReview
+from ..prompts.system_prompts import PRD_CRITIC_SYSTEM, get_review_prompt
 from typing import Optional, Tuple
 import os
 
-class EngineeringCritic:
-    """Engineering feasibility critic agent"""
+class PRDCritic:
+    """Product quality critic agent"""
 
     def __init__(self, model: str = "gpt-4-turbo", temperature: float = 0.2):
         self.llm = ChatOpenAI(
@@ -16,12 +16,12 @@ class EngineeringCritic:
             api_key=os.getenv("OPENAI_API_KEY")
         )
         self.parser = JsonOutputParser(pydantic_object=PRDReview)
-        self.name = "engineering_critic"
+        self.name = "prd_critic"
 
     def review(self, prd: PRD, logger: Optional[object] = None) -> Tuple[PRDReview, dict]:
         """Review PRD and return structured issues with metadata"""
         messages = [
-            SystemMessage(content=ENGINEERING_CRITIC_SYSTEM),
+            SystemMessage(content=PRD_CRITIC_SYSTEM),
             HumanMessage(content=get_review_prompt(prd))
         ]
 

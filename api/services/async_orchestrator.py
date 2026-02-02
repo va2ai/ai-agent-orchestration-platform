@@ -1,14 +1,14 @@
 import asyncio
 from datetime import datetime
 from typing import List, Tuple, Dict, Any
-from agents.prd_critic import PRDCritic
-from agents.engineering_critic import EngineeringCritic
-from agents.ai_risk_critic import AIRiskCritic
-from agents.moderator import Moderator
-from models.prd_models import PRD, PRDReview
-from storage.prd_storage import PRDStorage
-from utils.convergence import ConvergenceChecker
-from utils.logger import PRDLogger
+from ai_orchestrator.agents.prd_critic import PRDCritic
+from ai_orchestrator.agents.engineering_critic import EngineeringCritic
+from ai_orchestrator.agents.ai_risk_critic import AIRiskCritic
+from ai_orchestrator.agents.moderator import Moderator
+from ai_orchestrator.models.prd_models import PRD, PRDReview
+from ai_orchestrator.storage.prd_storage import PRDStorage
+from ai_orchestrator.utils.convergence import ConvergenceChecker
+from ai_orchestrator.utils.logger import PRDLogger
 
 class AsyncLoopingOrchestrator:
     """Async orchestrator with WebSocket broadcasting"""

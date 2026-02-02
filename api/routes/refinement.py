@@ -56,7 +56,7 @@ async def get_status(session_id: str):
 @router.post("/continue/{session_id}")
 async def continue_refinement(session_id: str, additional_iterations: int, background_tasks: BackgroundTasks):
     """Continue refinement for a converged session with additional iterations"""
-    from storage.prd_storage import PRDStorage
+    from ai_orchestrator.storage.prd_storage import PRDStorage
 
     storage = PRDStorage()
 

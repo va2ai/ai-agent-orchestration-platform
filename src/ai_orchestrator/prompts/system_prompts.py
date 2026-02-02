@@ -1,7 +1,7 @@
 from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models.prd_models import PRD, PRDReview
+    from ..models.prd_models import PRD, PRDReview
 
 PRD_CRITIC_SYSTEM = """You review PRDs for product quality and clarity.
 Focus on: user value proposition, success metrics, MVP scope, competitive analysis,
