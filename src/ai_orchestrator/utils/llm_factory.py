@@ -39,13 +39,23 @@ def _create_openai_llm(model: str, temperature: float, json_mode: bool = True, *
     if json_mode:
         model_kwargs["response_format"] = {"type": "json_object"}
 
-    return ChatOpenAI(
-        model=model,
-        temperature=temperature,
-        openai_api_key=os.environ.get("OPENAI_API_KEY"),
-        model_kwargs=model_kwargs,
-        **kwargs
-    )
+    # Build params dict, only including non-None values to avoid langchain 1.x issues
+    params = {
+        "model": model,
+        "temperature": temperature,
+        "model_kwargs": model_kwargs,
+    }
+
+    # Only pass api_key if explicitly set (let library use env var otherwise)
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if api_key:
+        params["openai_api_key"] = api_key
+
+    # Filter out None values from kwargs
+    filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    params.update(filtered_kwargs)
+
+    return ChatOpenAI(**params)
 
 
 def _create_gemini_llm(model: str, temperature: float, **kwargs):
@@ -64,14 +74,20 @@ def _create_gemini_llm(model: str, temperature: float, **kwargs):
             "GOOGLE_API_KEY or GEMINI_API_KEY environment variable is required for Gemini models"
         )
 
+    # Build params dict
+    params = {
+        "model": model,
+        "temperature": temperature,
+        "google_api_key": google_api_key,
+    }
+
+    # Filter out None values from kwargs
+    filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    params.update(filtered_kwargs)
+
     # Note: Gemini doesn't natively support system messages
     # The library handles this automatically in newer versions
-    return ChatGoogleGenerativeAI(
-        model=model,
-        temperature=temperature,
-        google_api_key=google_api_key,
-        **kwargs
-    )
+    return ChatGoogleGenerativeAI(**params)
 
 
 def get_model_provider(model: str) -> str:
