@@ -71,7 +71,7 @@ Features:
 - Session history
 - Interactive API docs at /docs
 
-See [API_DASHBOARD.md](API_DASHBOARD.md) for full documentation.
+See [API_DASHBOARD.md](docs/API_DASHBOARD.md) for full documentation.
 
 ### Option 2: CLI (Original)
 ```bash
