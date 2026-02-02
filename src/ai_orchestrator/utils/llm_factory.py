@@ -6,7 +6,7 @@ import os
 from typing import Optional
 
 
-def create_llm(model: str, temperature: float = 0.2, **kwargs):
+def create_llm(model: str, temperature: float = 0.2, json_mode: bool = True, **kwargs):
     """
     Create an LLM instance based on the model name.
 
@@ -17,6 +17,7 @@ def create_llm(model: str, temperature: float = 0.2, **kwargs):
     Args:
         model: Model identifier (e.g., "gpt-4-turbo", "gemini-1.5-pro")
         temperature: Sampling temperature
+        json_mode: Whether to request JSON output format (OpenAI only, default True)
         **kwargs: Additional model-specific arguments
 
     Returns:
@@ -27,20 +28,22 @@ def create_llm(model: str, temperature: float = 0.2, **kwargs):
     if model.startswith("gemini"):
         return _create_gemini_llm(model, temperature, **kwargs)
     else:
-        return _create_openai_llm(model, temperature, **kwargs)
+        return _create_openai_llm(model, temperature, json_mode=json_mode, **kwargs)
 
 
-def _create_openai_llm(model: str, temperature: float, **kwargs):
+def _create_openai_llm(model: str, temperature: float, json_mode: bool = True, **kwargs):
     """Create OpenAI LLM instance"""
     from langchain_openai import ChatOpenAI
+
+    model_kwargs = {}
+    if json_mode:
+        model_kwargs["response_format"] = {"type": "json_object"}
 
     return ChatOpenAI(
         model=model,
         temperature=temperature,
         openai_api_key=os.environ.get("OPENAI_API_KEY"),
-        model_kwargs={
-            "response_format": {"type": "json_object"}
-        },
+        model_kwargs=model_kwargs,
         **kwargs
     )
 

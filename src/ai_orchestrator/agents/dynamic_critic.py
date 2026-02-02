@@ -162,7 +162,8 @@ class DynamicModerator:
             temperature: LLM temperature
         """
         self.moderator_focus = moderator_focus
-        self.llm = create_llm(model=model, temperature=temperature)
+        # Moderator outputs markdown, not JSON, so disable json_mode
+        self.llm = create_llm(model=model, temperature=temperature, json_mode=False)
 
     def refine(
         self,
