@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 data/prds/*
 !data/prds/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
 .vscode/
 .pytest_cache/
 *.egg-info/
