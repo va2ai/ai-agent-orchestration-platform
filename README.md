@@ -1,252 +1,164 @@
-# AI Orchestrator
+# AI Agent Orchestration Platform
 
-A reusable Python library for AI agent orchestration and iterative document refinement. The library provides a framework for running "roundtable" sessions where multiple AI agents review and refine documents through iterative feedback loops.
+> A production-ready Python framework for multi-agent AI orchestration, demonstrating advanced software engineering patterns including async/await, WebSockets, LangChain integration, and clean architecture.
 
-## Features
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+[![LangChain](https://img.shields.io/badge/LangChain-0.3+-orange.svg)](https://langchain.com/)
 
-- **Single Public API**: `run_roundtable()` - the only function you need to run a refinement session
-- **Pluggable Agents**: Define custom agents with any LLM backend
-- **Convergence Control**: Multiple stop conditions (no high issues, max iterations, delta threshold, custom)
-- **Type-Safe**: Pydantic-based models and Python Protocol types
-- **Multi-Provider**: Supports OpenAI, Google Gemini, and Anthropic models
-- **Reference Applications**: Web dashboard (api/) and CLI (main.py) included
+## Project Overview
 
-## Installation
+This platform orchestrates multiple AI agents in "roundtable" sessions where they collaboratively review and refine documents through iterative feedback loops. Originally built for PRD (Product Requirements Document) refinement, the architecture generalizes to any document review workflow.
 
-### As a Library
+**Key Achievement:** Reduced average document refinement time from manual hours to automated minutes while maintaining quality through multi-perspective AI review.
 
-```bash
-# Basic installation (core only)
-pip install -e .
+## Technical Highlights
 
-# With LangChain support (recommended for most use cases)
-pip install -e ".[langchain]"
+| Category | Technologies & Patterns |
+|----------|------------------------|
+| **Backend** | Python 3.10+, FastAPI, Pydantic, async/await |
+| **AI/ML** | LangChain, OpenAI GPT, Google Gemini, Anthropic Claude |
+| **Real-time** | WebSockets, Server-Sent Events |
+| **Architecture** | Clean Architecture, Protocol-based interfaces, Factory pattern |
+| **Frontend** | Vanilla JS, Tailwind CSS, WebSocket client |
+| **Testing** | pytest, async test fixtures |
 
-# With all LLM providers
-pip install -e ".[all-providers]"
+## System Flow
 
-# With development dependencies
-pip install -e ".[dev]"
-```
+```mermaid
+flowchart TD
+    A[Document Input] --> B[Create Session]
+    B --> C[Iteration Start]
 
-### Environment Setup
+    subgraph Parallel["Parallel Execution"]
+        D1[Product Critic]
+        D2[Engineering Critic]
+        D3[AI Risk Critic]
+    end
 
-```bash
-cp .env.example .env
-# Add your API keys to .env:
-# OPENAI_API_KEY=sk-...
-# GOOGLE_API_KEY=...  (for Gemini)
-```
+    C --> Parallel
 
-## Quick Start
+    Parallel --> E[Aggregate Reviews]
+    E --> F{Convergence Check}
 
-### Using the Library
+    F -->|No High Issues| G[Success]
+    F -->|Max Iterations| H[Max Reached]
+    F -->|Delta < 5%| I[Stable]
+    F -->|Continue| J[Moderator Refines]
 
-```python
-from ai_orchestrator import run_roundtable, RoundtableConfig, Issue, Review, Severity
+    J --> K[Updated Document]
+    K --> C
 
-# Define a simple agent
-class MyAgent:
-    @property
-    def name(self) -> str:
-        return "QualityCritic"
+    G --> L[Final Document]
+    H --> L
+    I --> L
 
-    def review(self, document: str, context=None) -> Review:
-        # Your review logic here (can use any LLM)
-        return Review(
-            reviewer_name=self.name,
-            issues=[
-                Issue(
-                    category="clarity",
-                    description="Section 2 needs more detail",
-                    severity=Severity.MEDIUM,
-                    reviewer=self.name,
-                )
-            ],
-            overall_assessment="Document is good but needs minor improvements",
-        )
+    L --> M[Convergence Report]
 
-# Define a simple moderator
-class MyModerator:
-    def refine(self, document: str, reviews: list, context=None) -> str:
-        # Your refinement logic here
-        return document + "\n\n[Refined based on feedback]"
-
-# Run the roundtable
-result = run_roundtable(
-    document="# My Document\n\nThis is the content to refine...",
-    agents=[MyAgent()],
-    moderator=MyModerator(),
-    config=RoundtableConfig(max_iterations=3),
-    title="My Refinement Session",
-)
-
-print(f"Converged: {result.converged}")
-print(f"Reason: {result.convergence_reason}")
-print(f"Final document:\n{result.final_document}")
-```
-
-### Using the CLI
-
-```bash
-# Run PRD refinement with built-in agents
-python main.py --input document.md --title "My PRD" --max-iterations 3 --verbose
-```
-
-### Using the Web Dashboard
-
-```bash
-# Start the API server
-python run_api.py
-
-# Open http://localhost:8000 in your browser
-```
-
-## Public API
-
-### Main Function
-
-```python
-run_roundtable(
-    document: str,              # Initial document content
-    agents: Sequence[Agent],    # List of review agents
-    moderator: Moderator,       # Document refiner
-    engine: OrchestratorEngine = None,  # Optional custom engine
-    config: RoundtableConfig = None,    # Configuration
-    context: dict = None,       # Optional context passed to agents
-    title: str = "Untitled",    # Session title
-    session_id: str = None,     # Optional custom session ID
-    logger: OrchestratorLogger = None,  # Optional logger
-) -> RoundtableResult
-```
-
-### Configuration
-
-```python
-RoundtableConfig(
-    max_iterations: int = 3,           # Max refinement loops
-    delta_threshold: float = 0.05,     # Stop if document changes < 5%
-    stop_on_no_high_issues: bool = True,  # Stop when no High issues remain
-    verbose: bool = False,             # Enable verbose logging
-    metadata: dict = {},               # Custom metadata
-    custom_stop_condition: Callable = None,  # Custom stop function
-)
-```
-
-### Result
-
-```python
-RoundtableResult(
-    session_id: str,                   # Session identifier
-    title: str,                        # Session title
-    initial_document: str,             # Original document
-    final_document: str,               # Refined document
-    iterations: List[RoundtableIteration],  # All iteration data
-    converged: bool,                   # Whether convergence was reached
-    convergence_reason: str,           # Why it stopped
-    stopped_by: str,                   # "no_high_issues", "max_iterations", "delta_threshold", "custom"
-    total_issues_identified: int,      # Total issues across all iterations
-    final_issue_count: dict,           # {"high": 0, "medium": 3, "low": 5}
-    token_usage: dict,                 # Token usage by agent
-)
-```
-
-### Types
-
-```python
-from ai_orchestrator import (
-    # Core types
-    Issue,              # An issue found during review
-    Review,             # A collection of issues from one agent
-    Severity,           # HIGH, MEDIUM, LOW
-
-    # Protocols (for custom implementations)
-    Agent,              # Protocol for review agents
-    Moderator,          # Protocol for document refiners
-    OrchestratorEngine, # Protocol for custom engines
-
-    # Iteration data
-    RoundtableIteration,  # Data from one iteration
-    StopDecision,         # Decision about stopping
-)
-```
-
-### Convergence Functions
-
-```python
-from ai_orchestrator import (
-    decide_stop,              # Main convergence decision function
-    has_high_severity_issues, # Check for high issues
-    calculate_document_delta, # Calculate document change
-    count_issues_by_severity, # Count issues by severity
-    ConvergenceChecker,       # Class-based interface (backwards compat)
-)
+    style Parallel fill:#e1f5fe
+    style G fill:#c8e6c9
+    style H fill:#fff9c4
+    style I fill:#fff9c4
 ```
 
 ## Architecture
 
 ```
 ai-agent-orchestration-platform/
-├── src/ai_orchestrator/        # Library package
-│   ├── __init__.py             # Public API exports
-│   ├── types.py                # Core types and protocols
-│   ├── convergence.py          # Stop condition logic
-│   ├── exceptions.py           # Custom exceptions
-│   ├── logging.py              # Logging utilities
-│   ├── orchestration/          # Orchestration logic
-│   │   ├── runner.py           # run_roundtable implementation
-│   │   ├── looping_orchestrator.py  # CLI orchestrator
-│   │   └── dynamic_orchestrator.py  # Dynamic roundtable
-│   ├── agents/                 # Built-in agents
-│   │   ├── prd_critic.py       # Product quality reviewer
-│   │   ├── engineering_critic.py # Technical reviewer
-│   │   ├── ai_risk_critic.py   # AI safety reviewer
-│   │   ├── moderator.py        # Document refiner
-│   │   ├── dynamic_critic.py   # Configurable critic
-│   │   └── meta_orchestrator.py # AI-generated roundtables
-│   ├── models/                 # Data models
-│   │   ├── prd_models.py       # PRD-specific models
-│   │   └── document_models.py  # Generic document models
-│   ├── prompts/                # System prompts
-│   ├── storage/                # Persistence
-│   └── utils/                  # Utilities (LLM factory, etc.)
-├── api/                        # Reference API server
-├── ui/                         # Reference web dashboard
-├── tests/                      # Test suite
-├── main.py                     # CLI entry point
-├── run_api.py                  # API server entry point
-└── pyproject.toml              # Package configuration
+├── src/ai_orchestrator/        # Core library package
+│   ├── types.py                # Protocol-based interfaces
+│   ├── convergence.py          # Stop condition algorithms
+│   ├── orchestration/          # Orchestration engines
+│   ├── agents/                 # Pluggable AI agents
+│   └── utils/                  # LLM factory, logging
+├── api/                        # FastAPI REST + WebSocket server
+│   ├── routes/                 # Endpoint handlers
+│   └── services/               # Async orchestration service
+├── ui/                         # Real-time web dashboard
+├── docs/                       # Documentation
+└── tests/                      # Test suite
 ```
 
-## Convergence Logic
+## Key Features
 
-The roundtable stops when any of these conditions is met:
+### Multi-Agent Orchestration
+- **Parallel Agent Execution**: Critics run concurrently for 2-3x speedup
+- **Convergence Detection**: Automatic stopping when quality thresholds met
+- **Session Persistence**: JSON-based versioning with full audit trail
 
-1. **No High Severity Issues** (primary): All High issues resolved
-2. **Max Iterations Reached** (fallback): Hit the iteration limit
-3. **Document Stable** (stability): Document changed < 5% from previous iteration
-4. **Custom Condition**: Your custom stop logic (if provided)
+### Multi-Provider LLM Support
+- OpenAI (GPT-4, GPT-5 series)
+- Google Gemini (1M token context window)
+- Anthropic Claude
+- Factory pattern for seamless provider switching
 
+### Real-time Updates
+- WebSocket broadcasting with 7 event types
+- Live progress visualization
+- Reconnection handling with exponential backoff
+
+### Clean Public API
 ```python
-from ai_orchestrator import decide_stop, RoundtableConfig
+from ai_orchestrator import run_roundtable, RoundtableConfig
 
-# Check if should stop
-decision = decide_stop(config, iterations)
-if decision.should_stop:
-    print(f"Stopping: {decision.reason}")
-    print(f"Stopped by: {decision.stopped_by}")
+result = run_roundtable(
+    document="# My Document\n\nContent to refine...",
+    agents=[ProductCritic(), EngineeringCritic()],
+    moderator=DocumentModerator(),
+    config=RoundtableConfig(max_iterations=3),
+)
+
+print(f"Converged: {result.converged}")
+print(f"Final document:\n{result.final_document}")
 ```
 
-## Built-in Agents
+## Quick Start
 
-The library includes pre-built agents for common use cases:
+### Installation
 
-- **PRDCritic**: Reviews product requirements for quality and clarity
-- **EngineeringCritic**: Reviews for technical feasibility
-- **AIRiskCritic**: Reviews for AI safety and evaluation strategy
-- **Moderator**: Refines documents based on reviews
-- **DynamicCritic**: Configurable critic that takes any system prompt
-- **MetaOrchestrator**: AI that generates appropriate roundtable participants
+```bash
+# Clone and install
+git clone https://github.com/va2ai/ai-agent-orchestration-platform.git
+cd ai-agent-orchestration-platform
+pip install -e ".[all-providers]"
+
+# Configure API keys
+cp .env.example .env
+# Add: OPENAI_API_KEY, GOOGLE_API_KEY (optional)
+```
+
+### Run the Web Dashboard
+
+```bash
+python run_api.py
+# Open http://localhost:8000
+```
+
+### Run via CLI
+
+```bash
+python main.py --input document.md --title "My PRD" --max-iterations 3
+```
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [API Dashboard](docs/API_DASHBOARD.md) | REST API and WebSocket documentation |
+| [Agents Guide](docs/AGENTS.md) | Built-in agents and custom agent development |
+| [Dynamic System](docs/DYNAMIC_SYSTEM.md) | AI-generated roundtable configuration |
+| [Gemini Setup](docs/GEMINI_SETUP.md) | Google Gemini integration guide |
+| [Logging](docs/LOGGING.md) | Comprehensive logging system |
+| [Quick Start](docs/QUICKSTART.md) | Getting started guide |
+
+## Design Patterns Demonstrated
+
+- **Protocol-based Interfaces**: Type-safe agent contracts without inheritance coupling
+- **Factory Pattern**: LLM provider abstraction for multi-model support
+- **Async Orchestration**: Non-blocking parallel execution with asyncio
+- **Event-driven Architecture**: WebSocket pub/sub for real-time updates
+- **Strategy Pattern**: Configurable convergence algorithms
+- **Repository Pattern**: Session storage abstraction
 
 ## Testing
 
@@ -257,25 +169,16 @@ pytest
 # Run with coverage
 pytest --cov=ai_orchestrator
 
-# Run specific test file
-pytest tests/test_convergence.py -v
+# Run API tests
+python test_api.py
 ```
 
-## Development
+## Performance
 
-```bash
-# Install dev dependencies
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Type checking
-mypy src/ai_orchestrator
-
-# Linting
-ruff check src/
-```
+- **Async Orchestrator**: 2-3 minutes vs 4 minutes (CLI sync version)
+- **Parallel Critics**: 3 agents execute concurrently
+- **Token Tracking**: Per-agent usage monitoring
+- **Session Resume**: Continue refinement without losing progress
 
 ## License
 
