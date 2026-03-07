@@ -1,13 +1,32 @@
 # AI Agent Orchestration Platform
 
-> **A production-ready multi-agent AI system** demonstrating full-stack engineering, real-time systems, and modern Python architecture.
-
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-00a393.svg)](https://fastapi.tiangolo.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-0.3+-orange.svg)](https://langchain.com/)
 [![React](https://img.shields.io/badge/React-18+-61dafb.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178c6.svg)](https://www.typescriptlang.org/)
-[![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-brightgreen.svg)](#)
+![Multi-Agent](https://img.shields.io/badge/Multi--Agent-Orchestration-purple)
+![LLMs](https://img.shields.io/badge/LLMs-OpenAI_|_Gemini_|_Anthropic-orange)
+
+A **"roundtable refinement"** multi-agent system where parallel AI critics debate and iteratively improve documents until convergence — producing high-confidence outputs with full traceability. Multiple agents review, critique, and refine content through structured feedback loops with configurable stop conditions.
+
+### Key Capabilities
+
+- **Parallel Critic Loops** — Multiple specialized agents review simultaneously, each with different expertise
+- **Convergence Control** — Stops when quality thresholds are met (no high-severity issues, document stability, or custom conditions)
+- **Multi-Provider LLMs** — Supports OpenAI, Google Gemini, and Anthropic models via a pluggable architecture
+- **Traceable Audit Logs** — Every iteration, review, and refinement is captured with full metadata
+- **Structured Outputs** — Type-safe Pydantic models and Python Protocol types throughout
+- **Web Dashboard + CLI** — Reference FastAPI dashboard and CLI included
+
+## Skills Demonstrated
+
+- **Multi-Agent Orchestration** — Parallel critic loops with convergence conditions and iterative refinement
+- **Python Library Design** — Protocol-based, type-safe, single public API (`run_roundtable()`)
+- **LLM Integration** — OpenAI, Google Gemini, and Anthropic via pluggable agent backends
+- **Production Patterns** — Audit logs, structured outputs, error handling, token usage tracking
+- **FastAPI Web Dashboard** — Real-time session monitoring and visualization
+- **Convergence Algorithms** — Delta thresholds, severity-based stopping, custom condition support
 
 ---
 
